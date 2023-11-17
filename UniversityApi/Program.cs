@@ -1,7 +1,10 @@
+using Microsoft.EntityFrameworkCore;
+using UniversityApi.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddDbContext<TestDbContext>(
+builder.Services.AddDbContext<Context>(
     options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
     );
 
