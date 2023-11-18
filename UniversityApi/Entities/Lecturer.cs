@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿on  using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace UniversityApi.Entities

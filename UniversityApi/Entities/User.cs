@@ -15,6 +15,8 @@ namespace UniversityApi.Entities
         [MaxLength(20)]
         public string SurName { get; set; }
         public int Age { get; set; }
+        [ForeignKey("Faculty")]
+        public int? FacultyId { get; set; }
 
         public virtual ICollection<UsersLecturersJoin>? UsersLecturers { get; set; }
         public virtual ICollection<UsersCoursesJoin>? UsersCourses { get; set; }
