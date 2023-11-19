@@ -2,6 +2,6 @@
 {
     public class FacultyDeleteDto
     {
-        public int? Id { get; set; }
+        public int Id { get; set; }
     }
 }

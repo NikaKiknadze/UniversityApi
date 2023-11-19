@@ -8,7 +8,7 @@ namespace UniversityApi.Dtos
 
         public string? CourseName { get; set; }
 
-        public Faculty? Faculty { get; set; }
+        public FacultyGetDto? Faculty { get; set; }
 
         public List<int>? LecturerIds { get; set; }
 

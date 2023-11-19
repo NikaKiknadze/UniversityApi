@@ -26,6 +26,14 @@ namespace UniversityApi.Repositories
                 .FirstOrDefault(u => u.Id == userId);
         }
 
+        public List<User> GetUsersWithRelatedData()
+        {
+            return _context.Users
+                           .Include(u => u.UsersCourses)
+                           .Include(u => u.UsersLecturers)
+                           .ToList();
+        }
+
         public IQueryable<User> GetUsers()
         {
             return _context.Users.AsQueryable();

@@ -80,7 +80,7 @@ namespace UniversityApi.Repositories
             }
 
             existingLecturer.Name = updatedLecturer.Name;
-            existingLecturer.Surname = updatedLecturer.Surname;
+            existingLecturer.SurName = updatedLecturer.SurName;
             existingLecturer.Age = (int)updatedLecturer.Age;
             return true;
         }

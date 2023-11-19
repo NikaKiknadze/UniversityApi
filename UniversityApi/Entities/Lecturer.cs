@@ -1,4 +1,4 @@
-﻿on  using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace UniversityApi.Entities
@@ -11,7 +11,7 @@ namespace UniversityApi.Entities
         [MaxLength(20)]
         public string Name { get; set; }
         [MaxLength(20)]
-        public string Surname { get; set; }
+        public string SurName { get; set; }
         public int Age { get; set; }
 
 
