@@ -2,6 +2,6 @@
 {
     public class UserDeleteDto
     {
-        public int? Id { get; set; }
+        public int Id { get; set; }
     }
 }

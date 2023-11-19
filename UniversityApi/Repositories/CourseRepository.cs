@@ -26,12 +26,20 @@ namespace UniversityApi.Repositories
                 .FirstOrDefault(c => c.Id == courseId);
         }
 
+        public List<Course> GetCoursesWithRelatedData()
+        {
+            return _context.Courses
+                           .Include(c => c.UsersCourses)
+                           .Include(c => c.UsersCourses)
+                           .ToList();
+        }
+
         public IQueryable<Course> GetCourses()
         {
             return _context.Courses.AsQueryable();
         }
 
-        public User CreateCourse(Course course)
+        public Course CreateCourse(Course course)
         {
             _context.Courses.Add(course);
             return course;
