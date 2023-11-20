@@ -48,8 +48,7 @@ namespace UniversityApi.Services
                 CoursesLecturers = new List<CoursesLecturersJoin>()
             };
 
-            _lecturerRepository.CreateLecturer(lecturer);
-            _lecturerRepository.SaveChanges();
+            
 
             if (!input.CourseIds.IsNullOrEmpty())
             {
@@ -78,6 +77,9 @@ namespace UniversityApi.Services
                     });
                 }
             }
+
+            _lecturerRepository.CreateLecturer(lecturer);
+            _lecturerRepository.SaveChanges();
 
             return new LecturerGetDto
             {

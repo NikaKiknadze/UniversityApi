@@ -12,12 +12,14 @@ namespace UniversityApi.Services
         public readonly UniversistyContext _context;
         public readonly FacultyRepository _facultyRepository;
         public readonly UserRepository _userRepository;
+        public readonly CourseRepository _courseRepository;
 
-        public FacultyServices(UniversistyContext context, FacultyRepository facultyRepository, UserRepository userRepository)
+        public FacultyServices(UniversistyContext context, FacultyRepository facultyRepository, UserRepository userRepository, CourseRepository courseRepository)
         {
             _context = context;
             _facultyRepository = facultyRepository;
             _userRepository = userRepository;
+            _courseRepository = courseRepository;
         }
 
         public List<FacultyGetDto> GetFacultyById(int facultyId)
@@ -67,8 +69,10 @@ namespace UniversityApi.Services
                 Courses = new List<Course>()
             };
 
+
             _facultyRepository.CreateFaculty(faculty);
-            _facultyRepository.SaveChanges();
+            
+
 
             if (!input.UserIds.IsNullOrEmpty())
             {
@@ -79,16 +83,37 @@ namespace UniversityApi.Services
                     {
                         user.FacultyId = faculty.Id;
                         faculty.Users.Add(user);
-                        _userRepository.SaveChanges();
                     }
                 }
             }
+
+            if (!input.CourseIds.IsNullOrEmpty())
+            {
+                foreach (var courseId in input.CourseIds)
+                {
+                    var course = _courseRepository.GetCourseById(courseId);
+
+                    if(course != null)
+                    {
+                        course.FacultyId = faculty.Id;
+                        faculty.Courses.Add(course);
+                        
+                    }
+                    //_courseRepository.SaveChanges();
+                }
+            }
+
+            _userRepository.SaveChanges();
+            _facultyRepository.SaveChanges();
+
+
 
             return new FacultyGetDto
             {
                 Id = faculty.Id,
                 FacultyName = faculty.FacultyName,
-                UserIds = faculty.Users.Select(f => f.Id).ToList()
+                UserIds = faculty.Users.Select(f => f.Id).ToList(),
+                CourseIds = faculty.Courses.Select(f => f.Id).ToList()
             };
 
 
@@ -115,6 +140,18 @@ namespace UniversityApi.Services
                         faculty.Users.Add(user);
                     }
                 }
+                _facultyRepository.SaveChanges();
+
+                if (!input.CourseIds.IsNullOrEmpty())
+                {
+                    faculty.Courses.Clear();
+                    foreach(var courseId in input.CourseIds)
+                    {
+                        var course = _courseRepository.GetCourseById(courseId);
+                        faculty.Courses.Add(course);
+                    }
+                }
+
                 _facultyRepository.SaveChanges();
                 return true;
             }

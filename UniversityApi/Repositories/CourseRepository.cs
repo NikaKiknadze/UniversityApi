@@ -30,7 +30,8 @@ namespace UniversityApi.Repositories
         {
             return _context.Courses
                            .Include(c => c.UsersCourses)
-                           .Include(c => c.UsersCourses)
+                           .Include(c => c.CoursesLecturers)
+                           .Include(c => c.Faculty)
                            .ToList();
         }
 
