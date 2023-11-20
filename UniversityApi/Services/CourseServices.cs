@@ -26,13 +26,14 @@ namespace UniversityApi.Services
             {
                 Id = course.Id,
                 CourseName = course.CourseName,
-                Faculty = new FacultyGetDto
+                Faculty = course.Faculty != null
+                ? new FacultyGetDto
                 {
                     Id = (int)course.Faculty.Id,
                     FacultyName = (string)course.Faculty.FacultyName
-                },
-                LecturerIds = course.CoursesLecturers.Select(c => c.LectureId).ToList() ?? new List<int>(),
-                UserIds = course.UsersCourses.Select(c => c.UserId).ToList() ?? new List<int>()
+                }: null,
+                LecturerIds = course.CoursesLecturers?.Select(c => c.LectureId).ToList() ?? new List<int>(),
+                UserIds = course.UsersCourses?.Select(c => c.UserId).ToList() ?? new List<int>()
             }).ToList();
 
             return courseDtos;
@@ -44,11 +45,10 @@ namespace UniversityApi.Services
             {
                 CourseName = input.CourseName,
                 UsersCourses = new List<UsersCoursesJoin>(),
-                CoursesLecturers = new List<CoursesLecturersJoin>
+                CoursesLecturers = new List<CoursesLecturersJoin>()
             };
 
-            _courseRepository.CreateCourse(course);
-            _courseRepository.SaveChanges();
+            
 
             if (!input.UserIds.IsNullOrEmpty())
             {
@@ -77,6 +77,9 @@ namespace UniversityApi.Services
                     });
                 }
             }
+
+            _courseRepository.CreateCourse(course);
+            _courseRepository.SaveChanges();
 
             return new CourseGetDto
             {

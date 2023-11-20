@@ -57,11 +57,12 @@ namespace UniversityApi.Services
                 Name = user.Name,
                 SurName = user.SurName,
                 Age = user.Age,
-                Faculty = new FacultyGetDto
+                Faculty = user.Faculty != null
+                ? new FacultyGetDto
                 {
                     Id = (int)user.Faculty.Id,
                     FacultyName = (string)user.Faculty.FacultyName
-                },
+                } : null,
                 CourseIds = user.UsersCourses?.Select(u => u.CourseId).ToList() ?? new List<int>(),
                 LecturerIds = user.UsersLecturers?.Select(u => u.LecturerId).ToList() ?? new List<int>()
             }).ToList();
@@ -76,7 +77,7 @@ namespace UniversityApi.Services
                 Name = input.Name,
                 SurName = input.SurName,
                 Age = (int)input.Age,
-                FacultyId = (int)input.FacultyId,
+                FacultyId = input.FacultyId,
                 UsersLecturers = new List<UsersLecturersJoin>(),
                 UsersCourses = new List<UsersCoursesJoin>()
             };

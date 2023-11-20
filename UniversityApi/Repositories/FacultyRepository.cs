@@ -63,6 +63,13 @@ namespace UniversityApi.Repositories
             {
                 user.FacultyId = null;
             }
+
+            var courses = _context.Courses.Where(f => f.FacultyId == facultyId).ToList();
+            foreach(var course in courses)
+            {
+                course.FacultyId = null;
+            }
+
             _context.Faculty.Remove(faculty);
             return true;
         }
