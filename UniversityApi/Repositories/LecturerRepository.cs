@@ -25,9 +25,11 @@ namespace UniversityApi.Repositories
         public List<Lecturer> GetLecturersWithRelatedData()
         {
             return _context.Lecturers
-                .Include(l => l.UsersLecturers)
-                .Include(l => l.CoursesLecturers)
-                .ToList();
+                            .Include(l => l.UsersLecturers)
+                                .ThenInclude(ul => ul.User)
+                            .Include(l => l.CoursesLecturers)
+                                .ThenInclude(cl => cl.Course)
+                            .ToList();
         }
 
         public Lecturer CreateLecturer(Lecturer lecturer)
@@ -51,7 +53,7 @@ namespace UniversityApi.Repositories
         {
             var usersLecturers = _context.UsersLecturersJoin
                                          .Where(l => l.LecturerId == lecturerId);
-            if(usersLecturers == null)
+            if (usersLecturers == null)
             {
                 return false;
             }

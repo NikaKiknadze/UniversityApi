@@ -18,6 +18,7 @@ namespace UniversityApi.Services
             _courseRepository = repository;
         }
 
+
         public List<CourseGetDto> GetCourses()
         {
             var courses = _courseRepository.GetCoursesWithRelatedData();
@@ -27,13 +28,30 @@ namespace UniversityApi.Services
                 Id = course.Id,
                 CourseName = course.CourseName,
                 Faculty = course.Faculty != null
-                ? new FacultyGetDto
-                {
-                    Id = (int)course.Faculty.Id,
-                    FacultyName = (string)course.Faculty.FacultyName
-                }: null,
-                LecturerIds = course.CoursesLecturers?.Select(c => c.LectureId).ToList() ?? new List<int>(),
-                UserIds = course.UsersCourses?.Select(c => c.UserId).ToList() ?? new List<int>()
+                              ? new FacultyOnlyDto
+                              {
+                                  Id = course.Faculty.Id,
+                                  FacultyName = course.Faculty.FacultyName
+                              }
+                              : null,
+                Lecturers = course.CoursesLecturers != null
+                                   ? course.CoursesLecturers.Where(ul => ul.Lecturer != null).Select(c => new LecturerOnlyDto
+                                   {
+                                       Id = c.Lecturer.Id,
+                                       Name = c.Lecturer.Name,
+                                       SurName = c.Lecturer.SurName,
+                                       Age = c.Lecturer.Age
+                                   }).ToList()
+                                   : new List<LecturerOnlyDto>(),
+                Users = course.UsersCourses != null
+                               ? course.UsersCourses.Where(uc => uc.User != null).Select(c => new UserOnlyDto
+                               {
+                                   Id = c.User.Id,
+                                   Name = c.User.Name,
+                                   SurName = c.User.SurName,
+                                   Age = c.User.Age
+                               }).ToList()
+                               : new List<UserOnlyDto>()
             }).ToList();
 
             return courseDtos;
@@ -48,13 +66,11 @@ namespace UniversityApi.Services
                 CoursesLecturers = new List<CoursesLecturersJoin>()
             };
 
-            
-
             if (!input.UserIds.IsNullOrEmpty())
             {
                 course.UsersCourses = new List<UsersCoursesJoin>();
 
-                foreach(var userId in input.UserIds)
+                foreach (var userId in input.UserIds)
                 {
                     course.UsersCourses.Add(new UsersCoursesJoin()
                     {
@@ -64,11 +80,11 @@ namespace UniversityApi.Services
                 }
             }
 
-            if(!input.LecturerIds.IsNullOrEmpty())
+            if (!input.LecturerIds.IsNullOrEmpty())
             {
                 course.CoursesLecturers = new List<CoursesLecturersJoin>();
 
-                foreach(var lecturerId in input.LecturerIds)
+                foreach (var lecturerId in input.LecturerIds)
                 {
                     course.CoursesLecturers.Add(new CoursesLecturersJoin()
                     {
@@ -85,8 +101,31 @@ namespace UniversityApi.Services
             {
                 Id = course.Id,
                 CourseName = course.CourseName,
-                UserIds = course.UsersCourses.Select(c => c.UserId).ToList(),
-                LecturerIds = course.CoursesLecturers.Select(c => c.LectureId).ToList()
+                Faculty = course.Faculty != null
+                              ? new FacultyOnlyDto
+                              {
+                                  Id = course.Faculty.Id,
+                                  FacultyName = course.Faculty.FacultyName
+                              }
+                              : null,
+                Lecturers = course.CoursesLecturers != null
+                                   ? course.CoursesLecturers.Where(ul => ul.Lecturer != null).Select(c => new LecturerOnlyDto
+                                   {
+                                       Id = c.Lecturer.Id,
+                                       Name = c.Lecturer.Name,
+                                       SurName = c.Lecturer.SurName,
+                                       Age = c.Lecturer.Age
+                                   }).ToList()
+                                   : new List<LecturerOnlyDto>(),
+                Users = course.UsersCourses != null
+                               ? course.UsersCourses.Where(uc => uc.User != null).Select(c => new UserOnlyDto
+                               {
+                                   Id = c.User.Id,
+                                   Name = c.User.Name,
+                                   SurName = c.User.SurName,
+                                   Age = c.User.Age
+                               }).ToList()
+                               : new List<UserOnlyDto>()
             };
         }
 
@@ -94,7 +133,9 @@ namespace UniversityApi.Services
         {
             var course = _courseRepository.GetCourses()
                                           .Include(c => c.UsersCourses)
+                                                .ThenInclude(uc => uc.User)
                                           .Include(c => c.CoursesLecturers)
+                                                .ThenInclude(cl => cl.Lecturer)
                                           .Where(c => c.Id == input.Id)
                                           .FirstOrDefault();
             course.Id = input.Id.HasValue ? (int)input.Id : 0;
@@ -118,7 +159,7 @@ namespace UniversityApi.Services
 
                 if (!input.LecturerIds.IsNullOrEmpty())
                 {
-                    foreach(var lecturerId in input.LecturerIds)
+                    foreach (var lecturerId in input.LecturerIds)
                     {
                         course.CoursesLecturers.Clear();
                         course.CoursesLecturers.Add(new CoursesLecturersJoin()
@@ -134,11 +175,11 @@ namespace UniversityApi.Services
             return false;
         }
 
-        public bool DeleteCourse(CourseDeleteDto input)
+        public bool DeleteCourse(int courseId)
         {
-            if(_courseRepository.DeleteCourse(input.Id) &&
-               _courseRepository.DeleteUsersCourses(input.Id) &&
-               _courseRepository.DeleteCourseLecturers(input.Id))
+            if (_courseRepository.DeleteCourse(courseId) &&
+               _courseRepository.DeleteUsersCourses(courseId) &&
+               _courseRepository.DeleteCourseLecturers(courseId))
             {
                 _courseRepository.SaveChanges();
                 return true;

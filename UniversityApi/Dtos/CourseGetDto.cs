@@ -8,10 +8,10 @@ namespace UniversityApi.Dtos
 
         public string? CourseName { get; set; }
 
-        public FacultyGetDto? Faculty { get; set; }
+        public FacultyOnlyDto? Faculty { get; set; }
 
-        public List<int>? LecturerIds { get; set; }
+        public List<LecturerOnlyDto>? Lecturers { get; set; }
 
-        public List<int>? UserIds { get; set; }
+        public List<UserOnlyDto>? Users { get; set; }
     }
 }

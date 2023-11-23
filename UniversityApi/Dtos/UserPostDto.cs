@@ -10,8 +10,8 @@
 
         public int? FacultyId { get; set; }
 
-        public List<int>? LecturerIds { get; set; }
-
         public List<int>? CourseIds { get; set; }
+
+        public List<int>? LecturerIds { get; set; }
     }
 }
