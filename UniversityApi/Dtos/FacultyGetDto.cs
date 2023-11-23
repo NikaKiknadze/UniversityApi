@@ -1,4 +1,6 @@
-﻿namespace UniversityApi.Dtos
+﻿using UniversityApi.Entities;
+
+namespace UniversityApi.Dtos
 {
     public class FacultyGetDto
     {
@@ -6,8 +8,8 @@
 
         public string? FacultyName { get; set; }
 
-        public List<int>? UserIds { get; set; }
+        public List<UserOnlyDto>? Users { get; set; }
 
-        public List<int>? CourseIds { get; set; }
+        public List<CourseOnlyDto>? Courses { get; set; }
     }
 }

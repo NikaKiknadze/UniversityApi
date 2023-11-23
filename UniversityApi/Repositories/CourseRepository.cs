@@ -21,8 +21,10 @@ namespace UniversityApi.Repositories
         {
             return _context.Courses
                 .Include(c => c.UsersCourses)
-                .Include(c => c.CoursesLecturers)
-                .Include(c => c.Faculty)
+                                .ThenInclude(uc => uc.User)
+                           .Include(c => c.CoursesLecturers)
+                                .ThenInclude(cl => cl.Lecturer)
+                           .Include(c => c.Faculty)
                 .FirstOrDefault(c => c.Id == courseId);
         }
 
@@ -30,7 +32,9 @@ namespace UniversityApi.Repositories
         {
             return _context.Courses
                            .Include(c => c.UsersCourses)
+                                .ThenInclude(uc => uc.User)
                            .Include(c => c.CoursesLecturers)
+                                .ThenInclude(cl => cl.Lecturer)
                            .Include(c => c.Faculty)
                            .ToList();
         }

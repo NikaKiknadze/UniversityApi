@@ -26,38 +26,71 @@ namespace UniversityApi.Services
         {
             var faculty = _facultyRepository.GetFaculties()
                                             .Include(f => f.Users)
+                                                .ThenInclude(u => u.UsersCourses)
+                                                    .ThenInclude(uc => uc.Course)
+                                            .Include(f => f.Users)
+                                                .ThenInclude(u => u.UsersLecturers)
+                                                    .ThenInclude(ul => ul.Lecturer)
                                             .Include(f => f.Courses)
                                             .Where(f => f.Id == facultyId)
                                             .Select(f => new FacultyGetDto
                                             {
                                                 Id = f.Id,
                                                 FacultyName = f.FacultyName,
-                                                UserIds = f.Users != null 
-                                                          ? f.Users.Select(f => f.Id).ToList()
-                                                          : new List<int>(),
-                                                CourseIds = f.Courses != null
-                                                            ? f.Courses.Select(f => f.Id).ToList() 
-                                                            : new List<int>()
+                                                Users = f.Users != null
+                                                          ? f.Users.Select(u => new UserOnlyDto
+                                                          {
+                                                              Id = u.Id,
+                                                              Name = u.Name,
+                                                              SurName = u.SurName,
+                                                              Age = u.Age
+                                                          }).ToList()
+                                                          : new List<UserOnlyDto>(),
+                                                Courses = f.Courses != null
+                                                            ? f.Courses.Select(uc => new CourseOnlyDto
+                                                            {
+                                                                Id = uc.Id,
+                                                                CourseName = uc.CourseName
+                                                            }).ToList()
+                                                            : new List<CourseOnlyDto>()
                                             }).ToList();
             return faculty;
         }
 
         public List<FacultyGetDto> GetFaculties()
         {
-            var faculties = _facultyRepository.GetFaculties()
-                                              .Include(f => f.Users)
-                                              .Include(f => f.Courses)
-                                              .ToList();
-            var facultyDtos = faculties.Select(faculty => new FacultyGetDto
-            {
-                Id = faculty.Id,
-                FacultyName = faculty.FacultyName,
-                UserIds = faculty.Users?.Select(f => f.Id).ToList() ?? new List<int>(),
-                CourseIds = faculty.Courses?.Select(f => f.Id).ToList() ?? new List<int>()
-            }).ToList();
-
+            var facultyDtos = _facultyRepository.GetFaculties()
+                                            .Include(f => f.Users)
+                                                .ThenInclude(u => u.UsersCourses)
+                                                    .ThenInclude(uc => uc.Course)
+                                            .Include(f => f.Users)
+                                                .ThenInclude(u => u.UsersLecturers)
+                                                    .ThenInclude(ul => ul.Lecturer)
+                                            .Include(f => f.Courses)
+                                            .ToList()
+                                            .Select(f => new FacultyGetDto
+                                            {
+                                                Id = f.Id,
+                                                FacultyName = f.FacultyName,
+                                                Users = f.Users != null
+                                                          ? f.Users.Select(u => new UserOnlyDto
+                                                          {
+                                                              Id = u.Id,
+                                                              Name = u.Name,
+                                                              SurName = u.SurName,
+                                                              Age = u.Age
+                                                          }).ToList()
+                                                          : new List<UserOnlyDto>(),
+                                                Courses = f.Courses != null
+                                                            ? f.Courses.Select(uc => new CourseOnlyDto
+                                                            {
+                                                                Id = uc.Id,
+                                                                CourseName = uc.CourseName
+                                                            }).ToList()
+                                                                  : new List<CourseOnlyDto>()
+                                            }).ToList();
             return facultyDtos;
-                                              
+
         }
 
         public FacultyGetDto CreateFaculty(FacultyPostDto input)
@@ -71,15 +104,15 @@ namespace UniversityApi.Services
 
 
             _facultyRepository.CreateFaculty(faculty);
-            
+
 
 
             if (!input.UserIds.IsNullOrEmpty())
             {
-                foreach(var userId in input.UserIds)
+                foreach (var userId in input.UserIds)
                 {
                     var user = _userRepository.GetUserById(userId);
-                    if(user != null)
+                    if (user != null)
                     {
                         user.FacultyId = faculty.Id;
                         faculty.Users.Add(user);
@@ -93,13 +126,12 @@ namespace UniversityApi.Services
                 {
                     var course = _courseRepository.GetCourseById(courseId);
 
-                    if(course != null)
+                    if (course != null)
                     {
                         course.FacultyId = faculty.Id;
                         faculty.Courses.Add(course);
-                        
+
                     }
-                    //_courseRepository.SaveChanges();
                 }
             }
 
@@ -112,8 +144,22 @@ namespace UniversityApi.Services
             {
                 Id = faculty.Id,
                 FacultyName = faculty.FacultyName,
-                UserIds = faculty.Users.Select(f => f.Id).ToList(),
-                CourseIds = faculty.Courses.Select(f => f.Id).ToList()
+                Users = faculty.Users != null
+                                ? faculty.Users.Select(u => new UserOnlyDto
+                                {
+                                    Id = u.Id,
+                                    Name = u.Name,
+                                    SurName = u.SurName,
+                                    Age = u.Age
+                                }).ToList()
+                                : new List<UserOnlyDto>(),
+                Courses = faculty.Courses != null
+                            ? faculty.Courses.Select(uc => new CourseOnlyDto
+                            {
+                                Id = uc.Id,
+                                CourseName = uc.CourseName
+                            }).ToList()
+                            : new List<CourseOnlyDto>()
             };
 
 
@@ -134,7 +180,7 @@ namespace UniversityApi.Services
                 if (!input.UserIds.IsNullOrEmpty())
                 {
                     faculty.Users.Clear();
-                    foreach(var userId in input.UserIds)
+                    foreach (var userId in input.UserIds)
                     {
                         var user = _userRepository.GetUserById(userId);
                         faculty.Users.Add(user);
@@ -145,7 +191,7 @@ namespace UniversityApi.Services
                 if (!input.CourseIds.IsNullOrEmpty())
                 {
                     faculty.Courses.Clear();
-                    foreach(var courseId in input.CourseIds)
+                    foreach (var courseId in input.CourseIds)
                     {
                         var course = _courseRepository.GetCourseById(courseId);
                         faculty.Courses.Add(course);
@@ -158,9 +204,9 @@ namespace UniversityApi.Services
             return false;
         }
 
-        public bool DeleteFaculty(FacultyDeleteDto input)
+        public bool DeleteFaculty(int facultyId)
         {
-            if (_facultyRepository.DeleteFaculty(input.Id))
+            if (_facultyRepository.DeleteFaculty(facultyId))
             {
                 _facultyRepository.SaveChanges();
                 return true;

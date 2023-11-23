@@ -38,7 +38,7 @@ namespace UniversityApi.Controllers
 
         }
 
-        [HttpGet("Users")]
+        [HttpGet("Users", Name = "GetUsers")]
         public ActionResult<UserGetDto> GetUsers()
         {
             var result = _userServices.GetUsers();
@@ -50,7 +50,7 @@ namespace UniversityApi.Controllers
             return Ok(result);
         }
 
-        [HttpPost("Users")]
+        [HttpPost("Users", Name = "PostUser" )]
         public ActionResult<UserGetDto> PostUsesr(UserPostDto input)
         {
             var result = _userServices.CreateUser(input);
@@ -62,7 +62,7 @@ namespace UniversityApi.Controllers
             return Ok(result);
         }
 
-        [HttpPut("Users")]
+        [HttpPut("Users", Name = "PutUser")]
         public ActionResult<bool> PutUser(UserPutDto input)
         {
             var result = _userServices.UpdateUser(input);
@@ -74,10 +74,10 @@ namespace UniversityApi.Controllers
             return Ok(result);
         }
 
-        [HttpDelete("Users")]
-        public ActionResult<bool> DeleteUser(UserDeleteDto input)
+        [HttpDelete("Users/{userId}", Name = "DeleteUser")]
+        public ActionResult<bool> DeleteUser(int userId)
         {
-            var result = _userServices.DeleteUser(input);
+            var result = _userServices.DeleteUser(userId);
 
             if (result == null)
             {
@@ -88,7 +88,7 @@ namespace UniversityApi.Controllers
         #endregion
 
         #region CourseServices
-        [HttpGet("Courses")]
+        [HttpGet("Courses", Name = "GetCourses")]
         public ActionResult<CourseGetDto>  GetCourses()
         {
             var result = _courseServices.GetCourses();
@@ -100,7 +100,7 @@ namespace UniversityApi.Controllers
             return Ok(result);
         }
 
-        [HttpPost("Courses")]
+        [HttpPost("Courses", Name = "CreateCourse")]
         public ActionResult<CourseGetDto> CreateCourse(CoursePostDto input)
         {
             var result = _courseServices.CreateCourse(input);
@@ -112,7 +112,7 @@ namespace UniversityApi.Controllers
             return Ok(result);
         }
 
-        [HttpPut("Courses")]
+        [HttpPut("Courses", Name = "PutCourse")]
         public ActionResult<bool> PutCourse(CoursePutDto input)
         {
             var result = _courseServices.UpdateCourse(input);
@@ -124,10 +124,10 @@ namespace UniversityApi.Controllers
             return Ok(result);
         }
 
-        [HttpDelete("Courses")]
-        public ActionResult<bool> DeleteCourse(CourseDeleteDto input)
+        [HttpDelete("Courses/{courseId}", Name = "DeleteCourse")]
+        public ActionResult<bool> DeleteCourse(int courseId)
         {
-            var result = _courseServices.DeleteCourse(input);
+            var result = _courseServices.DeleteCourse(courseId);
 
             if (result == null)
             {
@@ -139,7 +139,7 @@ namespace UniversityApi.Controllers
         #endregion
 
         #region LecturerServices
-        [HttpGet("Lecturers")]
+        [HttpGet("Lecturers", Name = "GetLecturers")]
         public ActionResult  GetLecturers()
         {
             var result = _lecturerServices.GetLecturers();
@@ -151,7 +151,7 @@ namespace UniversityApi.Controllers
             return Ok(result);
         }
 
-        [HttpPost("Lecturers")]
+        [HttpPost("Lecturers", Name = "CreateLecturer")]
         public ActionResult<LecturerGetDto> CreateLecturer(LecturerPostDto input)
         {
             var result = _lecturerServices.CreateLecturer(input);
@@ -163,7 +163,7 @@ namespace UniversityApi.Controllers
             return Ok(result);
         }
 
-        [HttpPut("Lecturers")]
+        [HttpPut("Lecturers", Name = "PutLecturer")]
         public ActionResult<bool> PutLecturer(LecturerPutDto input)
         {
             var result = _lecturerServices.UpdateLecturer(input);
@@ -175,10 +175,10 @@ namespace UniversityApi.Controllers
             return Ok(result);
         }
 
-        [HttpDelete("Lecturers")]
-        public ActionResult<bool> DeleteLecturer(LecturerDeleteDto input)
+        [HttpDelete("Lecturers/{lecturerId}", Name = "DeleteLecturer")]
+        public ActionResult<bool> DeleteLecturer(int lecturerId)
         {
-            var result = _lecturerServices.DeleteLecturer(input);
+            var result = _lecturerServices.DeleteLecturer(lecturerId);
 
             if (result == null)
             {
@@ -189,7 +189,7 @@ namespace UniversityApi.Controllers
         #endregion
 
         #region FacultyServices
-        [HttpGet("Faculties/{facultyId}")]
+        [HttpGet("Faculties/{facultyId}", Name = "GetFacultiesById")]
         public ActionResult<FacultyGetDto> GetFacultyesById(int facultyId)
         {
             var result = _faultyServices.GetFacultyById(facultyId);
@@ -201,7 +201,7 @@ namespace UniversityApi.Controllers
             return Ok(result);
         }
 
-        [HttpGet("Faculties")]
+        [HttpGet("Faculties", Name = "GetFaculties")]
         public ActionResult<FacultyGetDto> GetFaculties()
         {
             var result = _faultyServices.GetFaculties();
@@ -213,7 +213,7 @@ namespace UniversityApi.Controllers
             return Ok(result);
         }
 
-        [HttpPost("Faculties")]
+        [HttpPost("Faculties", Name = "PostFaculties")]
         public ActionResult<FacultyGetDto> PostFaculty(FacultyPostDto input)
         {
             var result = _faultyServices.CreateFaculty(input);
@@ -225,7 +225,7 @@ namespace UniversityApi.Controllers
             return Ok(result);
         }
 
-        [HttpPut("Faculties")]
+        [HttpPut("Faculties", Name = "PutFaculty")]
         public ActionResult<bool> PutFaculty(FacultyPutDto input)
         {
             var result = _faultyServices.UpdateFaculty(input);
@@ -237,10 +237,10 @@ namespace UniversityApi.Controllers
             return Ok(result);
         }
 
-        [HttpDelete("Faculties")]
-        public ActionResult<bool> DeleteFaculty(FacultyDeleteDto input)
+        [HttpDelete("Faculties/{facultyId}", Name = "DeleteFaculty")]
+        public ActionResult<bool> DeleteFaculty(int facultyId)
         {
-            var result = _faultyServices.DeleteFaculty(input);
+            var result = _faultyServices.DeleteFaculty(facultyId);
 
             if (result == null)
             {
@@ -249,7 +249,6 @@ namespace UniversityApi.Controllers
             return Ok(result);
         }
         #endregion
-
 
     }
 }

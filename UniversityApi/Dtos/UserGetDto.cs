@@ -10,10 +10,10 @@
         
         public int? Age { get; set; }
         
-        public FacultyGetDto? Faculty { get; set; }
+        public FacultyOnlyDto? Faculty { get; set; }
         
-        public List<int>? LecturerIds { get; set; }
+        public List<LecturerOnlyDto>? Lecturers { get; set; }
         
-        public List<int>? CourseIds { get; set; }
+        public List<CourseOnlyDto>? Courses { get; set; }
     }
 }
