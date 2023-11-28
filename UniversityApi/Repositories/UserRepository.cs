@@ -40,8 +40,7 @@ namespace UniversityApi.Repositories
 
         public async Task<IQueryable<User>> GetUsersAsync()
         {
-            var user = await _context.Users.ToListAsync();
-            return user.AsQueryable();
+            return await Task.Run(() => _context.Users.AsQueryable());
         }
         
         public async Task<User> CreateUserAsync(User user)
