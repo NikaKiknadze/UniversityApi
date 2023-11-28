@@ -178,11 +178,11 @@ namespace UniversityApi.Services
 
         */
 
-        public ApiResponse<List<LecturerGetDto>> GetLecturers()
+        public async Task<ApiResponse<List<LecturerGetDto>>> GetLecturersAsync()
         {
             try
             {
-                var lecturers = _lecturerRepository.GetLecturersWithRelatedData();
+                var lecturers = await _lecturerRepository.GetLecturersWithRelatedDataAsync();
 
                 var lecturerDtos = lecturers.Select(lecturer => new LecturerGetDto
                 {
@@ -216,7 +216,7 @@ namespace UniversityApi.Services
             }
         }
 
-        public ApiResponse<LecturerGetDto> CreateLecturer(LecturerPostDto input)
+        public async Task<ApiResponse<LecturerGetDto>> CreateLecturerAsync(LecturerPostDto input)
         {
             try
             {
@@ -257,8 +257,8 @@ namespace UniversityApi.Services
                     }
                 }
 
-                _lecturerRepository.CreateLecturer(lecturer);
-                _lecturerRepository.SaveChanges();
+                await _lecturerRepository.CreateLecturerAsync(lecturer);
+                await _lecturerRepository.SaveChangesAsync();
 
                 var lecturerDto = new LecturerGetDto
                 {
@@ -292,22 +292,23 @@ namespace UniversityApi.Services
             }
         }
 
-        public ApiResponse<bool> UpdateLecturer(LecturerPutDto input)
+        public async Task<ApiResponse<bool>> UpdateLecturerAsync(LecturerPutDto input)
         {
             try
             {
-                var lecturer = _lecturerRepository.GetLecturers()
+                var lecturerQueryable = await _lecturerRepository.GetLecturersAsync();
+                var lecturer = await lecturerQueryable.AsQueryable()
                                                   .Include(l => l.UsersLecturers)
                                                   .Include(l => l.CoursesLecturers)
                                                   .Where(l => l.Id == input.Id)
-                                                  .FirstOrDefault();
+                                                  .FirstOrDefaultAsync();
 
                 lecturer.Id = input.Id.HasValue ? (int)input.Id.Value : 0;
                 lecturer.Name = input.Name;
                 lecturer.SurName = input.Surname;
                 lecturer.Age = input.Id.HasValue ? (int)input.Age.Value : 0;
 
-                if (_lecturerRepository.UpdateLecturer(lecturer))
+                if (await _lecturerRepository.UpdateLecturerAsync(lecturer))
                 {
                     if (!input.UserIds.IsNullOrEmpty())
                     {
@@ -334,7 +335,7 @@ namespace UniversityApi.Services
                             });
                         }
                     }
-                    _lecturerRepository.SaveChanges();
+                    await _lecturerRepository.SaveChangesAsync();
                     return new ApiResponse<bool>(true, "Lecturer changed successfully", true);
                 }
                 return new ApiResponse<bool>(false, "Failed to update Lecturer", false);
@@ -345,15 +346,15 @@ namespace UniversityApi.Services
             }
         }
 
-        public ApiResponse<bool> DeleteLecturer(int lecturerId)
+        public async Task<ApiResponse<bool>> DeleteLecturerAsync(int lecturerId)
         {
             try
             {
-                if (_lecturerRepository.DeleteLecturer(lecturerId) &&
-                   _lecturerRepository.DeleteUsersLecturers(lecturerId) &&
-                   _lecturerRepository.DeleteCoursesLecturers(lecturerId))
+                if (await _lecturerRepository.DeleteLecturerAsync(lecturerId) &&
+                   await _lecturerRepository.DeleteUsersLecturersAsync(lecturerId) &&
+                   await _lecturerRepository.DeleteCoursesLecturersAsync(lecturerId))
                 {
-                    _lecturerRepository.SaveChanges();
+                    await _lecturerRepository.SaveChangesAsync();
                     return new ApiResponse<bool>(true, "Lecturer deleted successfully", true);
                 }
                 return new ApiResponse<bool>(false, "Failed to delete Lecturer", false);

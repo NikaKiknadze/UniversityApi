@@ -242,17 +242,18 @@ namespace UniversityApi.Services
             return false;
         }
         */
-        public ApiResponse<UserGetDto> GetUserById(int userId)
+        public async Task<ApiResponse<UserGetDto>> GetUserByIdAsync(int userId)
         {
             try
             {
-                var user = _userRepository.GetUsers()
+                var userQueryable = await _userRepository.GetUsersAsync();
+                var user = await userQueryable.AsQueryable()
                                           .Include(u => u.Faculty)
                                           .Include(u => u.UsersLecturers)
                                               .ThenInclude(ul => ul.Lecturer)
                                           .Include(u => u.UsersCourses)
                                               .ThenInclude(uc => uc.Course)
-                                          .FirstOrDefault(u => u.Id == userId);
+                                          .FirstOrDefaultAsync(u => u.Id == userId);
                 if (user == null)
                 {
                     return new ApiResponse<UserGetDto>(false, "User not found", null);
@@ -297,11 +298,11 @@ namespace UniversityApi.Services
             }
         }
 
-        public ApiResponse<List<UserGetDto>> GetUsers()
+        public async Task<ApiResponse<List<UserGetDto>>> GetUsersAsync()
         {
             try
             {
-                var users = _userRepository.GetUsersWithRelatedData();
+                var users = await _userRepository.GetUsersWithRelatedDataAsync();
 
                 var userDtos = users.Select(user => new UserGetDto
                 {
@@ -342,7 +343,7 @@ namespace UniversityApi.Services
             }
         }
 
-        public ApiResponse<UserGetDto> CreateUser(UserPostDto input)
+        public async Task<ApiResponse<UserGetDto>> CreateUserAsync(UserPostDto input)
         {
             try
             {
@@ -356,8 +357,7 @@ namespace UniversityApi.Services
                     UsersCourses = new List<UsersCoursesJoin>()
                 };
 
-                _userRepository.CreateUser(user);
-                _userRepository.SaveChanges();
+                await _userRepository.CreateUserAsync(user);
 
                 if (!input.CourseIds.IsNullOrEmpty())
                 {
@@ -387,13 +387,16 @@ namespace UniversityApi.Services
                     }
                 }
 
+                
+                await _userRepository.SaveChangesAsync();
+
                 var userDto = new UserGetDto
                 {
                     Id = user.Id,
                     Name = user.Name,
                     SurName = user.SurName,
                     Age = user.Age,
-                    Faculty = user.FacultyId != null
+                    Faculty = user.FacultyId != null && user.Faculty != null
                                 ? new FacultyOnlyDto
                                 {
                                     Id = user.Faculty.Id,
@@ -418,6 +421,8 @@ namespace UniversityApi.Services
                                   : new List<LecturerOnlyDto>()
                 };
 
+                
+
                 return new ApiResponse<UserGetDto>(true, "User created successfully", userDto);
             }
             catch (Exception ex)
@@ -426,15 +431,16 @@ namespace UniversityApi.Services
             }
         }
 
-        public ApiResponse<bool> UpdateUser(UserPutDto input)
+        public async Task<ApiResponse<bool>> UpdateUserAsync(UserPutDto input)
         {
             try
             {
-                var user = _userRepository.GetUsers()
+                var userQueryable = await _userRepository.GetUsersAsync();
+                var user = await userQueryable.AsQueryable()
                                           .Include(u => u.UsersCourses)
                                           .Include(u => u.UsersLecturers)
                                           .Where(u => u.Id == input.Id)
-                                          .FirstOrDefault();
+                                          .FirstOrDefaultAsync();
 
                 if (user == null)
                 {
@@ -447,7 +453,7 @@ namespace UniversityApi.Services
                 user.Age = input.Age.HasValue ? (int)input.Age : 0;
                 user.FacultyId = input.FacultyId.HasValue ? (int)input.FacultyId : null;
 
-                _userRepository.UpdateUser(user);
+                await _userRepository.UpdateUserAsync(user);
 
                 user.UsersCourses.Clear();
                 if (!input.CourseIds.IsNullOrEmpty())
@@ -475,7 +481,7 @@ namespace UniversityApi.Services
                     }
                 }
 
-                _userRepository.SaveChanges();
+                await _userRepository.SaveChangesAsync();
                 return new ApiResponse<bool>(true, "User updated successfully", true);
             }
             catch (Exception ex)
@@ -484,15 +490,15 @@ namespace UniversityApi.Services
             }
         }
 
-        public ApiResponse<bool> DeleteUser(int userId)
+        public async Task<ApiResponse<bool>> DeleteUserAsync(int userId)
         {
             try
             {
-                if (_userRepository.DeleteUser(userId) &&
-                    _userRepository.DeleteUsersCourses(userId) &&
-                    _userRepository.DeleteUsersLecturers(userId))
+                if (await _userRepository.DeleteUserAsync(userId) &&
+                    await _userRepository.DeleteUsersCoursesAsync(userId) &&
+                    await _userRepository.DeleteUsersLecturers(userId))
                 {
-                    _userRepository.SaveChanges();
+                    await _userRepository.SaveChangesAsync();
                     return new ApiResponse<bool>(true, "User deleted successfully", true);
                 }
                 return new ApiResponse<bool>(false, "Failed to delete User", false);

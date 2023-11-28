@@ -12,47 +12,47 @@ namespace UniversityApi.Repositories
             _context = context;
         }
 
-        public void SaveChanges()
+        public async Task SaveChangesAsync()
         {
-            _context.SaveChanges();
+            _context.SaveChangesAsync();
         }
 
-        public Course GetCourseById(int courseId)
+        public async Task<Course> GetCourseByIdAsync(int courseId)
         {
-            return _context.Courses
+            return await _context.Courses
                 .Include(c => c.UsersCourses)
                                 .ThenInclude(uc => uc.User)
                            .Include(c => c.CoursesLecturers)
                                 .ThenInclude(cl => cl.Lecturer)
                            .Include(c => c.Faculty)
-                .FirstOrDefault(c => c.Id == courseId);
+                .FirstOrDefaultAsync(c => c.Id == courseId);
         }
 
-        public List<Course> GetCoursesWithRelatedData()
+        public async Task<List<Course>> GetCoursesWithRelatedDataAsync()
         {
-            return _context.Courses
+            return await _context.Courses
                            .Include(c => c.UsersCourses)
                                 .ThenInclude(uc => uc.User)
                            .Include(c => c.CoursesLecturers)
                                 .ThenInclude(cl => cl.Lecturer)
                            .Include(c => c.Faculty)
-                           .ToList();
+                           .ToListAsync();
         }
 
-        public IQueryable<Course> GetCourses()
+        public async Task<List<Course>> GetCoursesAsync()
         {
-            return _context.Courses.AsQueryable();
+            return await _context.Courses.AsQueryable().ToListAsync();
         }
 
-        public Course CreateCourse(Course course)
+        public async Task<Course> CreateCourseAsync(Course course)
         {
-            _context.Courses.Add(course);
+            await _context.Courses.AddAsync(course);
             return course;
         }
 
-        public bool UpdateCourse(Course updatedCourse)
+        public async Task<bool> UpdateCourseAsync(Course updatedCourse)
         {
-            var existingCourse = _context.Courses.FirstOrDefault(c => c.Id == updatedCourse.Id);
+            var existingCourse = await _context.Courses.FirstOrDefaultAsync(c => c.Id == updatedCourse.Id);
 
             if (existingCourse == null)
             {
@@ -64,9 +64,9 @@ namespace UniversityApi.Repositories
             return true;
         }
 
-        public bool DeleteCourse(int courseId)
+        public async Task<bool> DeleteCourseAsync(int courseId)
         {
-            var course = _context.Courses.FirstOrDefault(c => c.Id == courseId);
+            var course = await _context.Courses.FirstOrDefaultAsync(c => c.Id == courseId);
 
             if (course == null)
             {
@@ -77,10 +77,11 @@ namespace UniversityApi.Repositories
             return true;
         }
 
-        public bool DeleteUsersCourses(int courseId)
+        public async Task<bool> DeleteUsersCoursesAsync(int courseId)
         {
-            var usersCourses = _context.UsersCoursesJoin
-                                       .Where(c => c.CourseId == courseId);
+            var usersCourses = await _context.UsersCoursesJoin
+                                       .Where(c => c.CourseId == courseId)
+                                       .ToListAsync();
             if (usersCourses == null)
             {
                 return false;
@@ -89,10 +90,11 @@ namespace UniversityApi.Repositories
             return true;
         }
 
-        public bool DeleteCourseLecturers(int courseId)
+        public async Task<bool> DeleteCourseLecturersAsync(int courseId)
         {
-            var courseLecturers = _context.CoursesLecturersJoin
-                                         .Where(c => c.CourseId == courseId);
+            var courseLecturers = await _context.CoursesLecturersJoin
+                                         .Where(c => c.CourseId == courseId)
+                                         .ToListAsync();
             if (courseLecturers == null)
             {
                 return false;
