@@ -17,19 +17,20 @@ namespace UniversityApi.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<Lecturer>> GetLecturersAsync()
+        public async Task<IQueryable<Lecturer>> GetLecturersAsync()
         {
-            return await _context.Lecturers.ToListAsync();
+            return await Task.Run(() => _context.Lecturers.AsQueryable());
         }
 
-        public async Task<List<Lecturer>> GetLecturersWithRelatedDataAsync()
+        public async Task<IQueryable<Lecturer>> GetLecturersWithRelatedDataAsync()
         {
-            return await _context.Lecturers
+            var lecturer = await _context.Lecturers
                             .Include(l => l.UsersLecturers)
                                 .ThenInclude(ul => ul.User)
                             .Include(l => l.CoursesLecturers)
                                 .ThenInclude(cl => cl.Course)
                             .ToListAsync();
+            return lecturer.AsQueryable();
         }
 
         public async Task<Lecturer> CreateLecturerAsync(Lecturer lecturer)

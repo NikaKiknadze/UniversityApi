@@ -72,8 +72,7 @@ namespace UniversityApi.Services
                 var course = new Course
                 {
                     CourseName = input.CourseName,
-                    UsersCourses = new List<UsersCoursesJoin>(),
-                    CoursesLecturers = new List<CoursesLecturersJoin>()
+                    FacultyId = input.FacultyId
                 };
 
                 if (!input.UserIds.IsNullOrEmpty())
@@ -107,19 +106,33 @@ namespace UniversityApi.Services
                 await _courseRepository.CreateCourseAsync(course);
                 await _courseRepository.SaveChangesAsync();
 
+                var courseQueryable = await _courseRepository.GetCoursesAsync();
+                var fetchedCourse = await courseQueryable
+                                                .Include(c => c.Faculty)
+                                                .Include(c => c.UsersCourses)
+                                                        .ThenInclude(uc => uc.User)
+                                                .Include(c => c.CoursesLecturers)
+                                                        .ThenInclude(ul => ul.Lecturer)
+                                                .FirstOrDefaultAsync(c => c.Id == course.Id);
+
+                if (fetchedCourse == null)
+                {
+                    return new ApiResponse<CourseGetDto>(false, "Course not found", null);
+                }
+
                 var courseDto = new CourseGetDto
                 {
-                    Id = course.Id,
-                    CourseName = course.CourseName,
-                    Faculty = course.Faculty != null
+                    Id = fetchedCourse.Id,
+                    CourseName = fetchedCourse.CourseName,
+                    Faculty = fetchedCourse.Faculty != null
                                   ? new FacultyOnlyDto
                                   {
-                                      Id = course.Faculty.Id,
-                                      FacultyName = course.Faculty.FacultyName
+                                      Id = fetchedCourse.Faculty.Id,
+                                      FacultyName = fetchedCourse.Faculty.FacultyName
                                   }
                                   : null,
-                    Lecturers = course.CoursesLecturers != null
-                                       ? course.CoursesLecturers.Where(ul => ul.Lecturer != null).Select(c => new LecturerOnlyDto
+                    Lecturers = fetchedCourse.CoursesLecturers != null
+                                       ? fetchedCourse.CoursesLecturers.Where(ul => ul.Lecturer != null).Select(c => new LecturerOnlyDto
                                        {
                                            Id = c.Lecturer.Id,
                                            Name = c.Lecturer.Name,
@@ -127,8 +140,8 @@ namespace UniversityApi.Services
                                            Age = c.Lecturer.Age
                                        }).ToList()
                                        : new List<LecturerOnlyDto>(),
-                    Users = course.UsersCourses != null
-                                   ? course.UsersCourses.Where(uc => uc.User != null).Select(c => new UserOnlyDto
+                    Users = fetchedCourse.UsersCourses != null
+                                   ? fetchedCourse.UsersCourses.Where(uc => uc.User != null).Select(c => new UserOnlyDto
                                    {
                                        Id = c.User.Id,
                                        Name = c.User.Name,
@@ -139,13 +152,13 @@ namespace UniversityApi.Services
                 };
 
                 return new ApiResponse<CourseGetDto>(true, "Course created successfully", courseDto);
-                
+
             }
             catch (Exception ex)
             {
                 return new ApiResponse<CourseGetDto>(false, $"Error: {ex.Message}", null);
             }
-            
+
         }
 
         public async Task<ApiResponse<bool>> UpdateCourseAsync(CoursePutDto input)
@@ -160,48 +173,51 @@ namespace UniversityApi.Services
                                                 .ThenInclude(cl => cl.Lecturer)
                                           .Where(c => c.Id == input.Id)
                                           .FirstOrDefaultAsync();
+
+
                 course.Id = input.Id.HasValue ? (int)input.Id : 0;
                 course.CourseName = input.CourseName;
                 course.FacultyId = input.FacultyId.HasValue ? (int)input.FacultyId : null;
 
-                if (await _courseRepository.UpdateCourseAsync(course))
-                {
-                    if (!input.UserIds.IsNullOrEmpty())
-                    {
-                        foreach (var userId in input.UserIds)
-                        {
-                            course.UsersCourses.Clear();
-                            course.UsersCourses.Add(new UsersCoursesJoin()
-                            {
-                                UserId = userId,
-                                CourseId = course.Id
-                            });
-                        }
-                        return new ApiResponse<bool>(true, "UsersCourses updated", true);
-                    }
 
-                    if (!input.LecturerIds.IsNullOrEmpty())
+                await _courseRepository.UpdateCourseAsync(course);
+
+
+                if (!input.UserIds.IsNullOrEmpty())
+                {
+                    foreach (var userId in input.UserIds)
                     {
-                        foreach (var lecturerId in input.LecturerIds)
+                        course.UsersCourses.Clear();
+                        course.UsersCourses.Add(new UsersCoursesJoin()
                         {
-                            course.CoursesLecturers.Clear();
-                            course.CoursesLecturers.Add(new CoursesLecturersJoin()
-                            {
-                                LectureId = lecturerId,
-                                CourseId = course.Id
-                            });
-                        }
-                        return new ApiResponse<bool>(true, "CoursesLecturers updated", true);
+                            UserId = userId,
+                            CourseId = course.Id
+                        });
                     }
-                    await _courseRepository.SaveChangesAsync();
-                    return new ApiResponse<bool>(true, "Course changed Successfully", true);
                 }
+
+                if (!input.LecturerIds.IsNullOrEmpty())
+                {
+                    foreach (var lecturerId in input.LecturerIds)
+                    {
+                        course.CoursesLecturers.Clear();
+                        course.CoursesLecturers.Add(new CoursesLecturersJoin()
+                        {
+                            LectureId = lecturerId,
+                            CourseId = course.Id
+                        });
+                    }
+                }
+
+
+                await _courseRepository.SaveChangesAsync();
+                return new ApiResponse<bool>(true, "Course changed Successfully", true);
+
             }
             catch (Exception ex)
             {
                 return new ApiResponse<bool>(false, $"Error: {ex.Message}", false);
             }
-            return new ApiResponse<bool>(false, "Unexpected error occurred", false);
 
         }
 
@@ -212,17 +228,17 @@ namespace UniversityApi.Services
                 if (await _courseRepository.DeleteCourseAsync(courseId) &&
                        await _courseRepository.DeleteUsersCoursesAsync(courseId) &&
                        await _courseRepository.DeleteCourseLecturersAsync(courseId))
-                    {
-                        await _courseRepository.SaveChangesAsync();
-                        return new ApiResponse<bool>(true, "Course deleted successfully", true);
-                    }
+                {
+                    await _courseRepository.SaveChangesAsync();
+                    return new ApiResponse<bool>(true, "Course deleted successfully", true);
+                }
                 return new ApiResponse<bool>(false, "Failed to delete Course", false);
             }
             catch (Exception ex)
             {
                 return new ApiResponse<bool>(false, $"Error: {ex.Message}", false);
             }
-            
+
         }
     }
 }

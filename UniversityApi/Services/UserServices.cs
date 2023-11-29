@@ -242,13 +242,14 @@ namespace UniversityApi.Services
                 user.Age = input.Age.HasValue ? (int)input.Age : 0;
                 user.FacultyId = input.FacultyId.HasValue ? (int)input.FacultyId : null;
 
-                
+                await _userRepository.UpdateUserAsync(user);
 
-                user.UsersCourses.Clear();
+                
                 if (!input.CourseIds.IsNullOrEmpty())
                 {
                     foreach (var courseId in input.CourseIds)
                     {
+                        user.UsersCourses.Clear();
                         user.UsersCourses.Add(new UsersCoursesJoin
                         {
                             CourseId = courseId,
@@ -257,11 +258,12 @@ namespace UniversityApi.Services
                     }
                 }
 
-                user.UsersLecturers.Clear();
+                
                 if (!input.LecturerIds.IsNullOrEmpty())
                 {
                     foreach (var lecturerId in input.LecturerIds)
                     {
+                        user.UsersLecturers.Clear();
                         user.UsersLecturers.Add(new UsersLecturersJoin
                         {
                             LecturerId = lecturerId,
@@ -275,7 +277,7 @@ namespace UniversityApi.Services
                     return new ApiResponse<bool>(false, "User not found", false);
                 }
 
-                await _userRepository.UpdateUserAsync(user);
+                
                 await _userRepository.SaveChangesAsync();
                 return new ApiResponse<bool>(true, "User updated successfully", true);
             }

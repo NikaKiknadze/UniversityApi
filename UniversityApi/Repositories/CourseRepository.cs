@@ -14,34 +14,35 @@ namespace UniversityApi.Repositories
 
         public async Task SaveChangesAsync()
         {
-            _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
         }
 
         public async Task<Course> GetCourseByIdAsync(int courseId)
         {
             return await _context.Courses
                 .Include(c => c.UsersCourses)
-                                .ThenInclude(uc => uc.User)
-                           .Include(c => c.CoursesLecturers)
-                                .ThenInclude(cl => cl.Lecturer)
-                           .Include(c => c.Faculty)
+                    .ThenInclude(uc => uc.User)
+                .Include(c => c.CoursesLecturers)
+                    .ThenInclude(cl => cl.Lecturer)
+                .Include(c => c.Faculty)
                 .FirstOrDefaultAsync(c => c.Id == courseId);
         }
 
-        public async Task<List<Course>> GetCoursesWithRelatedDataAsync()
+        public async Task<IQueryable<Course>> GetCoursesWithRelatedDataAsync()
         {
-            return await _context.Courses
+            var course =  await _context.Courses
                            .Include(c => c.UsersCourses)
                                 .ThenInclude(uc => uc.User)
                            .Include(c => c.CoursesLecturers)
                                 .ThenInclude(cl => cl.Lecturer)
                            .Include(c => c.Faculty)
                            .ToListAsync();
+            return course.AsQueryable();
         }
 
-        public async Task<List<Course>> GetCoursesAsync()
+        public async Task<IQueryable<Course>> GetCoursesAsync()
         {
-            return await _context.Courses.AsQueryable().ToListAsync();
+            return await Task.Run(() => _context.Courses.AsQueryable());
         }
 
         public async Task<Course> CreateCourseAsync(Course course)

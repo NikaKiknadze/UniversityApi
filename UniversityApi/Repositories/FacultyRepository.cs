@@ -25,14 +25,14 @@ namespace UniversityApi.Repositories
 
         }
 
-        public async Task<List<Faculty>> GetFacultiesAsync()
+        public async Task<IQueryable<Faculty>> GetFacultiesAsync()
         {
-            return await _context.Faculty.ToListAsync();
+            return await Task.Run(() => _context.Faculty.AsQueryable());
         }
 
-        public async Task<List<Faculty>> GetFacultiesWithRelatedData()
+        public async Task<IQueryable<Faculty>> GetFacultiesWithRelatedDataAsync()
         {
-            return await _context.Faculty.AsQueryable()
+            var faculty = await _context.Faculty.AsQueryable()
                                .Include(f => f.Users)
                                     .ThenInclude(u => u.UsersCourses)
                                     .ThenInclude(uc => uc.Course)
@@ -41,7 +41,7 @@ namespace UniversityApi.Repositories
                                     .ThenInclude(ul => ul.Lecturer)
                                 .Include(f => f.Courses)
                                 .ToListAsync();
-
+            return faculty.AsQueryable();
         }
 
         public async Task<Faculty> CreateFacultyAsync(Faculty faculty)

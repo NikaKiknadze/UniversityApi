@@ -30,7 +30,7 @@ namespace UniversityApi.Services
             {
 
                 var facultyQueryable = await _facultyRepository.GetFacultiesAsync();
-                var faculty = await facultyQueryable.AsQueryable()
+                var faculty = await facultyQueryable
                                                 .Include(f => f.Users)
                                                     .ThenInclude(u => u.UsersCourses)
                                                         .ThenInclude(uc => uc.Course)
@@ -78,7 +78,7 @@ namespace UniversityApi.Services
             try
             {
 
-                var faculties = await _facultyRepository.GetFacultiesWithRelatedData();
+                var faculties = await _facultyRepository.GetFacultiesWithRelatedDataAsync();
 
                 var facultyDtos = faculties.Select(f => new FacultyGetDto
                 {
@@ -117,9 +117,7 @@ namespace UniversityApi.Services
             {
                 var faculty = new Faculty
                 {
-                    FacultyName = input.FacultyName,
-                    Users = new List<User>(),
-                    Courses = new List<Course>()
+                    FacultyName = input.FacultyName
                 };
 
 
@@ -129,6 +127,8 @@ namespace UniversityApi.Services
 
                 if (!input.UserIds.IsNullOrEmpty())
                 {
+                    faculty.Users = new List<User>();
+
                     foreach (var userId in input.UserIds)
                     {
                         var user = await _userRepository.GetUserByIdAsync(userId);
@@ -142,6 +142,8 @@ namespace UniversityApi.Services
 
                 if (!input.CourseIds.IsNullOrEmpty())
                 {
+                    faculty.Courses = new List<Course>();
+
                     foreach (var courseId in input.CourseIds)
                     {
                         var course = await _courseRepository.GetCourseByIdAsync(courseId);
@@ -158,12 +160,27 @@ namespace UniversityApi.Services
                 await _userRepository.SaveChangesAsync();
                 await _facultyRepository.SaveChangesAsync();
 
+                var facultyQueryable = await _facultyRepository.GetFacultiesAsync();
+                var fetchedFaculty = await facultyQueryable
+                                                .Include(f => f.Users)
+                                                    .ThenInclude(u => u.UsersCourses)
+                                                        .ThenInclude(uc => uc.Course)
+                                                .Include(f => f.Users)
+                                                    .ThenInclude(u => u.UsersLecturers)
+                                                        .ThenInclude(ul => ul.Lecturer)
+                                                .Include(f => f.Courses)
+                                                .FirstOrDefaultAsync(f => f.Id == faculty.Id);
+                if(fetchedFaculty == null)
+                {
+                    return new ApiResponse<FacultyGetDto>(false, "Faculty not found", null);
+                }
+
                 var facultyDto = new FacultyGetDto
                 {
-                    Id = faculty.Id,
-                    FacultyName = faculty.FacultyName,
-                    Users = faculty.Users != null
-                                    ? faculty.Users.Select(u => new UserOnlyDto
+                    Id = fetchedFaculty.Id,
+                    FacultyName = fetchedFaculty.FacultyName,
+                    Users = fetchedFaculty.Users != null
+                                    ?   fetchedFaculty.Users.Select(u => new UserOnlyDto
                                     {
                                         Id = u.Id,
                                         Name = u.Name,
@@ -171,8 +188,8 @@ namespace UniversityApi.Services
                                         Age = u.Age
                                     }).ToList()
                                     : new List<UserOnlyDto>(),
-                    Courses = faculty.Courses != null
-                                ? faculty.Courses.Select(uc => new CourseOnlyDto
+                    Courses = fetchedFaculty.Courses != null
+                                ? fetchedFaculty.Courses.Select(uc => new CourseOnlyDto
                                 {
                                     Id = uc.Id,
                                     CourseName = uc.CourseName
@@ -200,16 +217,18 @@ namespace UniversityApi.Services
                     .Where(f => f.Id == input.Id)
                     .FirstOrDefaultAsync();
 
-                if (faculty == null)
-                {
-                    return new ApiResponse<bool>(false, "Faculty not found", false);
-                }
+                
 
                 faculty.Id = input.Id.HasValue ? (int)input.Id.Value : 0;
                 faculty.FacultyName = input.FacultyName;
 
                 if (await _facultyRepository.UpdateFacultyAsync(faculty))
                 {
+                    if (faculty == null)
+                    {
+                        return new ApiResponse<bool>(false, "Faculty not found", false);
+                    }
+
                     if (!input.UserIds.IsNullOrEmpty())
                     {
                         faculty.Users.Clear();
