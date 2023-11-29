@@ -12,45 +12,46 @@ namespace UniversityApi.Repositories
             _context = context;
         }
 
-        public void SaveChanges()
+        public async Task SaveChangesAsync()
         {
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public User GetUserById(int userId)
+        public async Task<User> GetUserByIdAsync(int userId)
         {
-            return _context.Users
+            return await _context.Users
                 .Include(u => u.Faculty)
                 .Include(u => u.UsersCourses)
                 .Include(u => u.UsersLecturers)
-                .FirstOrDefault(u => u.Id == userId);
+                .FirstOrDefaultAsync(u => u.Id == userId);
         }
 
-        public List<User> GetUsersWithRelatedData()
+        public async Task<IQueryable<User>> GetUsersWithRelatedDataAsync()
         {
-            return _context.Users
-                           .Include(u => u.UsersCourses)
-                                .ThenInclude(uc => uc.Course)
-                           .Include(u => u.UsersLecturers)
-                                .ThenInclude(uc => uc.Lecturer)
+            var user = await _context.Users
                            .Include(u => u.Faculty)
-                           .ToList();
+                           .Include(uc => uc.UsersCourses)
+                                .ThenInclude(u => u.Course)
+                           .Include(ul => ul.UsersLecturers)
+                                .ThenInclude(u => u.Lecturer)
+                           .ToListAsync();
+            return user.AsQueryable();
         }
 
-        public IQueryable<User> GetUsers()
+        public async Task<IQueryable<User>> GetUsersAsync()
         {
-            return _context.Users.AsQueryable();
+            return await Task.Run(() => _context.Users.AsQueryable());
         }
         
-        public User CreateUser(User user)
+        public async Task<User> CreateUserAsync(User user)
         {
-            _context.Users.Add(user);
+            await _context.Users.AddAsync(user);
             return user;
         }
         
-        public bool UpdateUser(User updatedUser)
+        public async Task<bool> UpdateUserAsync(User updatedUser)
         {
-            var existingUser = _context.Users.FirstOrDefault(u => u.Id == updatedUser.Id);
+            var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == updatedUser.Id);
 
             if (existingUser == null)
             {
@@ -65,9 +66,9 @@ namespace UniversityApi.Repositories
             return true;
         }
 
-        public bool DeleteUser(int userId)
+        public async Task<bool> DeleteUserAsync(int userId)
         {
-            var user = _context.Users.FirstOrDefault(u => u.Id == userId);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
 
             if (user == null)
             {
@@ -78,10 +79,11 @@ namespace UniversityApi.Repositories
             return true;
         }
 
-        public bool DeleteUsersCourses(int userId)
+        public async Task<bool> DeleteUsersCoursesAsync(int userId)
         {
-            var usersCourses = _context.UsersCoursesJoin
-                                       .Where(u => u.UserId == userId);
+            var usersCourses = await _context.UsersCoursesJoin
+                                       .Where(u => u.UserId == userId)
+                                       .ToListAsync();
             if(usersCourses == null)
             {
                 return false;
@@ -90,10 +92,11 @@ namespace UniversityApi.Repositories
             return true;
         }
 
-        public bool DeleteUsersLecturers(int userId)
+        public async Task<bool> DeleteUsersLecturers(int userId)
         {
-            var usersLecturers = _context.UsersLecturersJoin
-                                         .Where(u => u.UserId == userId);
+            var usersLecturers = await _context.UsersLecturersJoin
+                                         .Where(u => u.UserId == userId)
+                                         .ToListAsync();
             if(usersLecturers == null)
             {
                 return false;

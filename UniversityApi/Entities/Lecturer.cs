@@ -14,9 +14,8 @@ namespace UniversityApi.Entities
         public string SurName { get; set; }
         public int Age { get; set; }
 
-
-        public virtual ICollection<UsersLecturersJoin> UsersLecturers { get; set; }
-        public virtual ICollection<CoursesLecturersJoin> CoursesLecturers { get; set; }
+        public virtual ICollection<UsersLecturersJoin>? UsersLecturers { get; set; }
+        public virtual ICollection<CoursesLecturersJoin>? CoursesLecturers { get; set; }
 
     }
 }

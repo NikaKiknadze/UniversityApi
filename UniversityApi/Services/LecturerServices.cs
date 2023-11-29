@@ -19,170 +19,13 @@ namespace UniversityApi.Services
             _context = context;
             _lecturerRepository = lecturerRepository;
         }
-        /*
-        public List<LecturerGetDto> GetLecturers()
-        {
-            var lecturers = _lecturerRepository.GetLecturersWithRelatedData();
 
-            var lecturerDtos = lecturers.Select(lecturer => new LecturerGetDto
-            {
-                Id = lecturer.Id,
-                Name = lecturer.Name,
-                SurName = lecturer.SurName,
-                Age = lecturer.Age,
-                Users = lecturer.UsersLecturers != null
-                                 ? lecturer.UsersLecturers.Where(ul => ul.User != null).Select(l => new UserOnlyDto
-                                 {
-                                     Id = l.User.Id,
-                                     Name = l.User.Name,
-                                     SurName = l.User.SurName,
-                                     Age = l.User.Age
-                                 }).ToList()
-                                 : new List<UserOnlyDto>(),
-                Courses = lecturer.CoursesLecturers != null
-                                   ? lecturer.CoursesLecturers.Where(cl => cl.Course != null).Select(l => new CourseOnlyDto
-                                   {
-                                       Id = l.Course.Id,
-                                       CourseName = l.Course.CourseName
-                                   }).ToList()
-                                   : new List<CourseOnlyDto>()
-            }).ToList();
 
-            return lecturerDtos;
-        }
-
-        public LecturerGetDto CreateLecturer(LecturerPostDto input)
-        {
-            var lecturer = new Lecturer
-            {
-                Name = input.Name,
-                SurName = input.Surname,
-                Age = (int)input.Age,
-                UsersLecturers = new List<UsersLecturersJoin>(),
-                CoursesLecturers = new List<CoursesLecturersJoin>()
-            };
-
-            if (!input.CourseIds.IsNullOrEmpty())
-            {
-                lecturer.CoursesLecturers = new List<CoursesLecturersJoin>();
-
-                foreach (var courseId in input.CourseIds)
-                {
-                    lecturer.CoursesLecturers.Add(new CoursesLecturersJoin()
-                    {
-                        CourseId = courseId,
-                        LectureId = lecturer.Id
-                    });
-                }
-            }
-
-            if (!input.UserIds.IsNullOrEmpty())
-            {
-                lecturer.UsersLecturers = new List<UsersLecturersJoin>();
-
-                foreach (var userId in input.UserIds)
-                {
-                    lecturer.UsersLecturers.Add(new UsersLecturersJoin()
-                    {
-                        UserId = userId,
-                        LecturerId = lecturer.Id
-                    });
-                }
-            }
-
-            _lecturerRepository.CreateLecturer(lecturer);
-            _lecturerRepository.SaveChanges();
-
-            return new LecturerGetDto
-            {
-                Id = lecturer.Id,
-                Name = lecturer.Name,
-                SurName = lecturer.SurName,
-                Age = lecturer.Age,
-                Users = lecturer.UsersLecturers != null
-                                 ? lecturer.UsersLecturers.Where(ul => ul.UserId != null).Select(l => new UserOnlyDto
-                                 {
-                                     Id = l.User.Id,
-                                     Name = l.User.Name,
-                                     SurName = l.User.SurName,
-                                     Age = l.User.Age
-                                 }).ToList()
-                : new List<UserOnlyDto>(),
-                Courses = lecturer.CoursesLecturers != null
-                                   ? lecturer.CoursesLecturers.Where(cl => cl.CourseId != null).Select(l => new CourseOnlyDto
-                                   {
-                                       Id = l.Course.Id,
-                                       CourseName = l.Course.CourseName
-                                   }).ToList()
-                : new List<CourseOnlyDto>()
-            };
-        }
-
-        public bool UpdateLecturer(LecturerPutDto input)
-        {
-            var lecturer = _lecturerRepository.GetLecturers()
-                                              .Include(l => l.UsersLecturers)
-                                              .Include(l => l.CoursesLecturers)
-                                              .Where(l => l.Id == input.Id)
-                                              .FirstOrDefault();
-
-            lecturer.Id = input.Id.HasValue ? (int)input.Id.Value : 0;
-            lecturer.Name = input.Name;
-            lecturer.SurName = input.Surname;
-            lecturer.Age = input.Id.HasValue ? (int)input.Age.Value : 0;
-
-            if (_lecturerRepository.UpdateLecturer(lecturer))
-            {
-                if (!input.UserIds.IsNullOrEmpty())
-                {
-                    foreach (var userId in input.UserIds)
-                    {
-                        lecturer.UsersLecturers.Clear();
-                        lecturer.UsersLecturers.Add(new UsersLecturersJoin()
-                        {
-                            UserId = userId,
-                            LecturerId = lecturer.Id
-                        });
-                    }
-                }
-
-                if (!input.CourseIds.IsNullOrEmpty())
-                {
-                    foreach (var courseId in input.CourseIds)
-                    {
-                        lecturer.CoursesLecturers.Clear();
-                        lecturer.CoursesLecturers.Add(new CoursesLecturersJoin()
-                        {
-                            CourseId = courseId,
-                            LectureId = lecturer.Id
-                        });
-                    }
-                }
-                _lecturerRepository.SaveChanges();
-                return true;
-            }
-            return false;
-        }
-
-        public bool DeleteLecturer(int lecturerId)
-        {
-            if (_lecturerRepository.DeleteLecturer(lecturerId) &&
-               _lecturerRepository.DeleteUsersLecturers(lecturerId) &&
-               _lecturerRepository.DeleteCoursesLecturers(lecturerId))
-            {
-                _lecturerRepository.SaveChanges();
-                return true;
-            }
-            return false;
-        }
-
-        */
-
-        public ApiResponse<List<LecturerGetDto>> GetLecturers()
+        public async Task<ApiResponse<List<LecturerGetDto>>> GetLecturersAsync()
         {
             try
             {
-                var lecturers = _lecturerRepository.GetLecturersWithRelatedData();
+                var lecturers = await _lecturerRepository.GetLecturersWithRelatedDataAsync();
 
                 var lecturerDtos = lecturers.Select(lecturer => new LecturerGetDto
                 {
@@ -216,7 +59,7 @@ namespace UniversityApi.Services
             }
         }
 
-        public ApiResponse<LecturerGetDto> CreateLecturer(LecturerPostDto input)
+        public async Task<ApiResponse<LecturerGetDto>> CreateLecturerAsync(LecturerPostDto input)
         {
             try
             {
@@ -224,9 +67,7 @@ namespace UniversityApi.Services
                 {
                     Name = input.Name,
                     SurName = input.Surname,
-                    Age = (int)input.Age,
-                    UsersLecturers = new List<UsersLecturersJoin>(),
-                    CoursesLecturers = new List<CoursesLecturersJoin>()
+                    Age = (int)input.Age
                 };
 
                 if (!input.CourseIds.IsNullOrEmpty())
@@ -257,17 +98,30 @@ namespace UniversityApi.Services
                     }
                 }
 
-                _lecturerRepository.CreateLecturer(lecturer);
-                _lecturerRepository.SaveChanges();
+                await _lecturerRepository.CreateLecturerAsync(lecturer);
+                await _lecturerRepository.SaveChangesAsync();
+
+
+                var lecturerQueryable = await _lecturerRepository.GetLecturersAsync();
+                var fetchedLecturer = await lecturerQueryable
+                                                   .Include(l => l.UsersLecturers)
+                                                        .ThenInclude(ul => ul.User)
+                                                   .Include(l => l.CoursesLecturers)
+                                                         .ThenInclude(cl => cl.Course)
+                                                    .FirstOrDefaultAsync(l => l.Id == lecturer.Id);
+                if(fetchedLecturer == null)
+                {
+                    return new ApiResponse<LecturerGetDto>(false, "Lecturer not found", null);
+                }
 
                 var lecturerDto = new LecturerGetDto
                 {
-                    Id = lecturer.Id,
-                    Name = lecturer.Name,
-                    SurName = lecturer.SurName,
-                    Age = lecturer.Age,
-                    Users = lecturer.UsersLecturers != null
-                                    ? lecturer.UsersLecturers.Where(ul => ul.UserId != null).Select(l => new UserOnlyDto
+                    Id = fetchedLecturer.Id,
+                    Name = fetchedLecturer.Name,
+                    SurName = fetchedLecturer.SurName,
+                    Age = fetchedLecturer.Age,
+                    Users = fetchedLecturer.UsersLecturers != null
+                                    ? fetchedLecturer.UsersLecturers.Where(ul => ul.UserId != null).Select(l => new UserOnlyDto
                                     {
                                         Id = l.User.Id,
                                         Name = l.User.Name,
@@ -275,8 +129,8 @@ namespace UniversityApi.Services
                                         Age = l.User.Age
                                     }).ToList()
                                     : new List<UserOnlyDto>(),
-                    Courses = lecturer.CoursesLecturers != null
-                                      ? lecturer.CoursesLecturers.Where(cl => cl.CourseId != null).Select(l => new CourseOnlyDto
+                    Courses = fetchedLecturer.CoursesLecturers != null
+                                      ? fetchedLecturer.CoursesLecturers.Where(cl => cl.CourseId != null).Select(l => new CourseOnlyDto
                                       {
                                           Id = l.Course.Id,
                                           CourseName = l.Course.CourseName
@@ -292,22 +146,23 @@ namespace UniversityApi.Services
             }
         }
 
-        public ApiResponse<bool> UpdateLecturer(LecturerPutDto input)
+        public async Task<ApiResponse<bool>> UpdateLecturerAsync(LecturerPutDto input)
         {
             try
             {
-                var lecturer = _lecturerRepository.GetLecturers()
+                var lecturerQueryable = await _lecturerRepository.GetLecturersAsync();
+                var lecturer = await lecturerQueryable.AsQueryable()
                                                   .Include(l => l.UsersLecturers)
                                                   .Include(l => l.CoursesLecturers)
                                                   .Where(l => l.Id == input.Id)
-                                                  .FirstOrDefault();
+                                                  .FirstOrDefaultAsync();
 
                 lecturer.Id = input.Id.HasValue ? (int)input.Id.Value : 0;
                 lecturer.Name = input.Name;
                 lecturer.SurName = input.Surname;
                 lecturer.Age = input.Id.HasValue ? (int)input.Age.Value : 0;
 
-                if (_lecturerRepository.UpdateLecturer(lecturer))
+                if (await _lecturerRepository.UpdateLecturerAsync(lecturer))
                 {
                     if (!input.UserIds.IsNullOrEmpty())
                     {
@@ -334,7 +189,13 @@ namespace UniversityApi.Services
                             });
                         }
                     }
-                    _lecturerRepository.SaveChanges();
+
+                    if(lecturer == null)
+                    {
+                        return new ApiResponse<bool>(false, "Lecturer not found", false);
+                    }
+
+                    await _lecturerRepository.SaveChangesAsync();
                     return new ApiResponse<bool>(true, "Lecturer changed successfully", true);
                 }
                 return new ApiResponse<bool>(false, "Failed to update Lecturer", false);
@@ -345,15 +206,15 @@ namespace UniversityApi.Services
             }
         }
 
-        public ApiResponse<bool> DeleteLecturer(int lecturerId)
+        public async Task<ApiResponse<bool>> DeleteLecturerAsync(int lecturerId)
         {
             try
             {
-                if (_lecturerRepository.DeleteLecturer(lecturerId) &&
-                   _lecturerRepository.DeleteUsersLecturers(lecturerId) &&
-                   _lecturerRepository.DeleteCoursesLecturers(lecturerId))
+                if (await _lecturerRepository.DeleteLecturerAsync(lecturerId) &&
+                   await _lecturerRepository.DeleteUsersLecturersAsync(lecturerId) &&
+                   await _lecturerRepository.DeleteCoursesLecturersAsync(lecturerId))
                 {
-                    _lecturerRepository.SaveChanges();
+                    await _lecturerRepository.SaveChangesAsync();
                     return new ApiResponse<bool>(true, "Lecturer deleted successfully", true);
                 }
                 return new ApiResponse<bool>(false, "Failed to delete Lecturer", false);

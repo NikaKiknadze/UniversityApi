@@ -12,8 +12,8 @@ namespace UniversityApi.Entities
         [ForeignKey("Faculty")]
         public int? FacultyId { get; set; }
         
-        public virtual ICollection<CoursesLecturersJoin> CoursesLecturers { get; set; }
-        public virtual ICollection<UsersCoursesJoin> UsersCourses { get; set; }
+        public virtual ICollection<CoursesLecturersJoin>? CoursesLecturers { get; set; }
+        public virtual ICollection<UsersCoursesJoin>? UsersCourses { get; set; }
         public virtual Faculty? Faculty { get; set; }
     }
 }

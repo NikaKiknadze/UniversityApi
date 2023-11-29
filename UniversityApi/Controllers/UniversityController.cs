@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.VisualBasic;
 using UniversityApi.Dtos;
 using UniversityApi.Services;
 
@@ -25,9 +26,9 @@ namespace UniversityApi.Controllers
 
         #region UserServices
         [HttpGet("Users/{userId}", Name = "GetUsersById")]
-        public ActionResult<UserGetDto> GetUsersById(int userId)
+        public async Task<ActionResult<UserGetDto>> GetUsersByIdAsync(int userId)
         {
-            var result = _userServices.GetUserById(userId);
+            var result = await _userServices.GetUserByIdAsync(userId);
 
             if (result == null)
             {
@@ -39,9 +40,9 @@ namespace UniversityApi.Controllers
         }
 
         [HttpGet("Users", Name = "GetUsers")]
-        public ActionResult<UserGetDto> GetUsers()
+        public async Task<ActionResult<UserGetDto>> GetUsersAsync()
         {
-            var result = _userServices.GetUsers();
+            var result = await _userServices.GetUsersAsync();
 
             if (result == null)
             {
@@ -51,9 +52,9 @@ namespace UniversityApi.Controllers
         }
 
         [HttpPost("Users", Name = "PostUser" )]
-        public ActionResult<UserGetDto> PostUsesr(UserPostDto input)
+        public async Task<ActionResult<UserGetDto>> PostUsesrAsync(UserPostDto input)
         {
-            var result = _userServices.CreateUser(input);
+            var result = await _userServices.CreateUserAsync(input);
 
             if (result == null)
             {
@@ -63,9 +64,9 @@ namespace UniversityApi.Controllers
         }
 
         [HttpPut("Users", Name = "PutUser")]
-        public ActionResult<bool> PutUser(UserPutDto input)
+        public async Task<ActionResult<bool>> PutUserAsync(UserPutDto input)
         {
-            var result = _userServices.UpdateUser(input);
+            var result = await _userServices.UpdateUserAsync(input);
 
             if (result == null)
             {
@@ -75,9 +76,9 @@ namespace UniversityApi.Controllers
         }
 
         [HttpDelete("Users/{userId}", Name = "DeleteUser")]
-        public ActionResult<bool> DeleteUser(int userId)
+        public async Task<ActionResult<bool>> DeleteUserAsync(int userId)
         {
-            var result = _userServices.DeleteUser(userId);
+            var result = await _userServices.DeleteUserAsync(userId);
 
             if (result == null)
             {
@@ -89,9 +90,9 @@ namespace UniversityApi.Controllers
 
         #region CourseServices
         [HttpGet("Courses", Name = "GetCourses")]
-        public ActionResult<CourseGetDto>  GetCourses()
+        public async Task<ActionResult<CourseGetDto>>  GetCoursesAsync()
         {
-            var result = _courseServices.GetCourses();
+            var result = await _courseServices.GetCoursesAsync();
 
             if (result == null)
             {
@@ -101,9 +102,9 @@ namespace UniversityApi.Controllers
         }
 
         [HttpPost("Courses", Name = "CreateCourse")]
-        public ActionResult<CourseGetDto> CreateCourse(CoursePostDto input)
+        public async Task<ActionResult<CourseGetDto>> CreateCourseAsync(CoursePostDto input)
         {
-            var result = _courseServices.CreateCourse(input);
+            var result = await _courseServices.CreateCourseAsync(input);
 
             if (result == null)
             {
@@ -113,9 +114,9 @@ namespace UniversityApi.Controllers
         }
 
         [HttpPut("Courses", Name = "PutCourse")]
-        public ActionResult<bool> PutCourse(CoursePutDto input)
+        public async Task<ActionResult<bool>> PutCourseAsync(CoursePutDto input)
         {
-            var result = _courseServices.UpdateCourse(input);
+            var result = await _courseServices.UpdateCourseAsync(input);
 
             if (result == null)
             {
@@ -125,9 +126,9 @@ namespace UniversityApi.Controllers
         }
 
         [HttpDelete("Courses/{courseId}", Name = "DeleteCourse")]
-        public ActionResult<bool> DeleteCourse(int courseId)
+        public async Task<ActionResult<bool>> DeleteCourse(int courseId)
         {
-            var result = _courseServices.DeleteCourse(courseId);
+            var result = await _courseServices.DeleteCourse(courseId);
 
             if (result == null)
             {
@@ -140,9 +141,9 @@ namespace UniversityApi.Controllers
 
         #region LecturerServices
         [HttpGet("Lecturers", Name = "GetLecturers")]
-        public ActionResult  GetLecturers()
+        public async Task<ActionResult>  GetLecturersAsync()
         {
-            var result = _lecturerServices.GetLecturers();
+            var result = await _lecturerServices.GetLecturersAsync();
 
             if (result == null)
             {
@@ -152,9 +153,9 @@ namespace UniversityApi.Controllers
         }
 
         [HttpPost("Lecturers", Name = "CreateLecturer")]
-        public ActionResult<LecturerGetDto> CreateLecturer(LecturerPostDto input)
+        public async Task<ActionResult<LecturerGetDto>> CreateLecturerAsync(LecturerPostDto input)
         {
-            var result = _lecturerServices.CreateLecturer(input);
+            var result = await _lecturerServices.CreateLecturerAsync(input);
 
             if (result == null)
             {
@@ -164,9 +165,9 @@ namespace UniversityApi.Controllers
         }
 
         [HttpPut("Lecturers", Name = "PutLecturer")]
-        public ActionResult<bool> PutLecturer(LecturerPutDto input)
+        public async Task<ActionResult<bool>> PutLecturerAsync(LecturerPutDto input)
         {
-            var result = _lecturerServices.UpdateLecturer(input);
+            var result = await _lecturerServices.UpdateLecturerAsync(input);
 
             if (result == null)
             {
@@ -176,9 +177,9 @@ namespace UniversityApi.Controllers
         }
 
         [HttpDelete("Lecturers/{lecturerId}", Name = "DeleteLecturer")]
-        public ActionResult<bool> DeleteLecturer(int lecturerId)
+        public async Task<ActionResult<bool>> DeleteLecturerAsync(int lecturerId)
         {
-            var result = _lecturerServices.DeleteLecturer(lecturerId);
+            var result = await _lecturerServices.DeleteLecturerAsync(lecturerId);
 
             if (result == null)
             {
@@ -190,9 +191,9 @@ namespace UniversityApi.Controllers
 
         #region FacultyServices
         [HttpGet("Faculties/{facultyId}", Name = "GetFacultiesById")]
-        public ActionResult<FacultyGetDto> GetFacultyesById(int facultyId)
+        public async Task<ActionResult<FacultyGetDto>> GetFacultyesByIdAsync(int facultyId)
         {
-            var result = _faultyServices.GetFacultyById(facultyId);
+            var result = await _faultyServices.GetFacultyByIdAsync(facultyId);
 
             if (result == null)
             {
@@ -202,9 +203,9 @@ namespace UniversityApi.Controllers
         }
 
         [HttpGet("Faculties", Name = "GetFaculties")]
-        public ActionResult<FacultyGetDto> GetFaculties()
+        public async Task<ActionResult<FacultyGetDto>> GetFacultiesAsync()
         {
-            var result = _faultyServices.GetFaculties();
+            var result = await _faultyServices.GetFacultiesAsync();
 
             if (result == null)
             {
@@ -214,9 +215,9 @@ namespace UniversityApi.Controllers
         }
 
         [HttpPost("Faculties", Name = "PostFaculties")]
-        public ActionResult<FacultyGetDto> PostFaculty(FacultyPostDto input)
+        public async Task<ActionResult<FacultyGetDto>> PostFacultyAsync(FacultyPostDto input)
         {
-            var result = _faultyServices.CreateFaculty(input);
+            var result = await _faultyServices.CreateFacultyAsync(input);
 
             if (result == null)
             {
@@ -226,9 +227,9 @@ namespace UniversityApi.Controllers
         }
 
         [HttpPut("Faculties", Name = "PutFaculty")]
-        public ActionResult<bool> PutFaculty(FacultyPutDto input)
+        public async Task<ActionResult<bool>> PutFacultyAsync(FacultyPutDto input)
         {
-            var result = _faultyServices.UpdateFaculty(input);
+            var result = await _faultyServices.UpdateFacultyAsync(input);
 
             if (result == null)
             {
@@ -238,9 +239,9 @@ namespace UniversityApi.Controllers
         }
 
         [HttpDelete("Faculties/{facultyId}", Name = "DeleteFaculty")]
-        public ActionResult<bool> DeleteFaculty(int facultyId)
+        public async Task<ActionResult<bool>> DeleteFacultyAsync(int facultyId)
         {
-            var result = _faultyServices.DeleteFaculty(facultyId);
+            var result = await _faultyServices.DeleteFacultyAsync(facultyId);
 
             if (result == null)
             {

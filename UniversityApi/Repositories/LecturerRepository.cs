@@ -12,35 +12,36 @@ namespace UniversityApi.Repositories
             _context = context;
         }
 
-        public void SaveChanges()
+        public async Task SaveChangesAsync()
         {
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public IQueryable<Lecturer> GetLecturers()
+        public async Task<IQueryable<Lecturer>> GetLecturersAsync()
         {
-            return _context.Lecturers.AsQueryable();
+            return await Task.Run(() => _context.Lecturers.AsQueryable());
         }
 
-        public List<Lecturer> GetLecturersWithRelatedData()
+        public async Task<IQueryable<Lecturer>> GetLecturersWithRelatedDataAsync()
         {
-            return _context.Lecturers
+            var lecturer = await _context.Lecturers
                             .Include(l => l.UsersLecturers)
                                 .ThenInclude(ul => ul.User)
                             .Include(l => l.CoursesLecturers)
                                 .ThenInclude(cl => cl.Course)
-                            .ToList();
+                            .ToListAsync();
+            return lecturer.AsQueryable();
         }
 
-        public Lecturer CreateLecturer(Lecturer lecturer)
+        public async Task<Lecturer> CreateLecturerAsync(Lecturer lecturer)
         {
-            _context.Lecturers.Add(lecturer);
+            await _context.Lecturers.AddAsync(lecturer);
             return lecturer;
         }
 
-        public bool DeleteLecturer(int lecturerId)
+        public async Task<bool> DeleteLecturerAsync(int lecturerId)
         {
-            var lecturer = _context.Lecturers.FirstOrDefault(l => l.Id == lecturerId);
+            var lecturer = await _context.Lecturers.FirstOrDefaultAsync(l => l.Id == lecturerId);
             if (lecturer == null)
             {
                 return false;
@@ -49,10 +50,11 @@ namespace UniversityApi.Repositories
             return true;
         }
 
-        public bool DeleteUsersLecturers(int lecturerId)
+        public async Task<bool> DeleteUsersLecturersAsync(int lecturerId)
         {
-            var usersLecturers = _context.UsersLecturersJoin
-                                         .Where(l => l.LecturerId == lecturerId);
+            var usersLecturers = await _context.UsersLecturersJoin
+                                         .Where(l => l.LecturerId == lecturerId)
+                                         .ToListAsync();
             if (usersLecturers == null)
             {
                 return false;
@@ -61,10 +63,11 @@ namespace UniversityApi.Repositories
             return true;
         }
 
-        public bool DeleteCoursesLecturers(int lecturerId)
+        public async Task<bool> DeleteCoursesLecturersAsync(int lecturerId)
         {
-            var usersLecturers = _context.CoursesLecturersJoin
-                                         .Where(l => l.LectureId == lecturerId);
+            var usersLecturers = await _context.CoursesLecturersJoin
+                                         .Where(l => l.LectureId == lecturerId)
+                                         .ToListAsync();
             if (usersLecturers == null)
             {
                 return false;
@@ -73,9 +76,9 @@ namespace UniversityApi.Repositories
             return true;
         }
 
-        public bool UpdateLecturer(Lecturer updatedLecturer)
+        public async Task<bool> UpdateLecturerAsync(Lecturer updatedLecturer)
         {
-            var existingLecturer = _context.Lecturers.FirstOrDefault(l => l.Id == updatedLecturer.Id);
+            var existingLecturer = await _context.Lecturers.FirstOrDefaultAsync(l => l.Id == updatedLecturer.Id);
             if (existingLecturer == null)
             {
                 return false;

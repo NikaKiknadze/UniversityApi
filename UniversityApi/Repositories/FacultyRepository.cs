@@ -11,34 +11,48 @@ namespace UniversityApi.Repositories
         {
             _context = context;
         }
-        public void SaveChanges()
+        public async Task SaveChangesAsync()
         {
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public Faculty GetFacultieById(int userId)
+        public async Task<Faculty> GetFacultieByIdAsync(int userId)
         {
-            return _context.Faculty
+            return await _context.Faculty
                                  .Include(f => f.Users)
                                  .Include(f => f.Courses)
-                                 .FirstOrDefault(f => f.Id == userId);
+                                 .FirstOrDefaultAsync(f => f.Id == userId);
 
         }
 
-        public IQueryable<Faculty> GetFaculties()
+        public async Task<IQueryable<Faculty>> GetFacultiesAsync()
         {
-            return _context.Faculty.AsQueryable();
+            return await Task.Run(() => _context.Faculty.AsQueryable());
         }
 
-        public Faculty CreateFaculty(Faculty faculty)
+        public async Task<IQueryable<Faculty>> GetFacultiesWithRelatedDataAsync()
         {
-            _context.Faculty.Add(faculty);
+            var faculty = await _context.Faculty.AsQueryable()
+                               .Include(f => f.Users)
+                                    .ThenInclude(u => u.UsersCourses)
+                                    .ThenInclude(uc => uc.Course)
+                               .Include(f => f.Users)
+                                    .ThenInclude(u => u.UsersLecturers)
+                                    .ThenInclude(ul => ul.Lecturer)
+                                .Include(f => f.Courses)
+                                .ToListAsync();
+            return faculty.AsQueryable();
+        }
+
+        public async Task<Faculty> CreateFacultyAsync(Faculty faculty)
+        {
+            await _context.Faculty.AddAsync(faculty);
             return faculty;
         }
 
-        public bool UpdateFaculty(Faculty updatedFaculty)
+        public async Task<bool> UpdateFacultyAsync(Faculty updatedFaculty)
         {
-            var existingFaculty = _context.Faculty.FirstOrDefault(f => f.Id == updatedFaculty.Id);
+            var existingFaculty = await _context.Faculty.FirstOrDefaultAsync(f => f.Id == updatedFaculty.Id);
 
             if (existingFaculty == null)
             {
@@ -50,22 +64,22 @@ namespace UniversityApi.Repositories
             return true;
         }
 
-        public bool DeleteFaculty(int facultyId)
+        public async Task<bool> DeleteFacultyAsync(int facultyId)
         {
-            var faculty = _context.Faculty.FirstOrDefault(f => f.Id == facultyId);
+            var faculty = await _context.Faculty.FirstOrDefaultAsync(f => f.Id == facultyId);
 
             if (faculty == null)
             {
                 return false;
             }
-            var users = _context.Users.Where(f => f.FacultyId == facultyId).ToList(); 
-            foreach(var user in users)
+            var users = await _context.Users.Where(f => f.FacultyId == facultyId).ToListAsync();
+            foreach (var user in users)
             {
                 user.FacultyId = null;
             }
 
-            var courses = _context.Courses.Where(f => f.FacultyId == facultyId).ToList();
-            foreach(var course in courses)
+            var courses = await _context.Courses.Where(f => f.FacultyId == facultyId).ToListAsync();
+            foreach (var course in courses)
             {
                 course.FacultyId = null;
             }
