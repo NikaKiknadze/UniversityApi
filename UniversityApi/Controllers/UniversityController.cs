@@ -3,7 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.VisualBasic;
 using UniversityApi.Dtos;
-using UniversityApi.Services;
+using UniversityApi.Service.ServiceAbstracts;
+using UniversityApi.Service.Services;
 
 namespace UniversityApi.Controllers
 {
@@ -11,12 +12,12 @@ namespace UniversityApi.Controllers
     [ApiController]
     public class UniversityController : ControllerBase
     {
-        private readonly UserServices _userServices;
-        private readonly CourseServices _courseServices;
-        private readonly LecturerServices _lecturerServices;
-        private readonly FacultyServices _faultyServices;
+        private readonly ICourseServices _courseServices;
+        private readonly IFacultyServices _faultyServices;
+        private readonly ILecturerServices _lecturerServices;
+        private readonly IUserServices _userServices;
 
-        public UniversityController(UserServices userServices, CourseServices courseServices, LecturerServices lecturerServices, FacultyServices faultyServices)
+        public UniversityController(IUserServices userServices, ICourseServices courseServices, ILecturerServices lecturerServices, IFacultyServices faultyServices)
         {
             _userServices = userServices;
             _courseServices = courseServices;

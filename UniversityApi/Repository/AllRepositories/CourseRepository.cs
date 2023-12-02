@@ -1,10 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using UniversityApi.Data;
 using UniversityApi.Entities;
+using UniversityApi.Repository.RepositoryAbstracts;
 
-namespace UniversityApi.Repositories
+namespace UniversityApi.Repository.Repositoryes
 {
-    public class CourseRepository
+    public class CourseRepository : ICourseRepository
     {
         private readonly UniversistyContext _context;
         public CourseRepository(UniversistyContext context)
@@ -30,7 +31,7 @@ namespace UniversityApi.Repositories
 
         public async Task<IQueryable<Course>> GetCoursesWithRelatedDataAsync()
         {
-            var course =  await _context.Courses
+            var course = await _context.Courses
                            .Include(c => c.UsersCourses)
                                 .ThenInclude(uc => uc.User)
                            .Include(c => c.CoursesLecturers)

@@ -4,27 +4,27 @@ using UniversityApi.CustomResponses;
 using UniversityApi.Data;
 using UniversityApi.Dtos;
 using UniversityApi.Entities;
-using UniversityApi.Repositories;
+using UniversityApi.Repository;
+using UniversityApi.Service.ServiceAbstracts;
 
-namespace UniversityApi.Services
+namespace UniversityApi.Service.Services
 {
-    public class CourseServices
+    public class CourseServices : ICourseServices
     {
-        public readonly UniversistyContext _context;
-        public readonly CourseRepository _courseRepository;
+        private readonly UniversistyContext _context;
+        private readonly IRepositories _repositories;
 
-        public CourseServices(UniversistyContext context, CourseRepository repository)
+        public CourseServices(UniversistyContext context, IRepositories repository)
         {
             _context = context;
-            _courseRepository = repository;
+            _repositories = repository;
         }
-
 
         public async Task<ApiResponse<List<CourseGetDto>>> GetCoursesAsync()
         {
             try
             {
-                var courses = await _courseRepository.GetCoursesWithRelatedDataAsync();
+                var courses = await _repositories.CourseRepository.GetCoursesWithRelatedDataAsync();
 
                 var courseDtos = courses.Select(course => new CourseGetDto
                 {
@@ -103,10 +103,10 @@ namespace UniversityApi.Services
                     }
                 }
 
-                await _courseRepository.CreateCourseAsync(course);
-                await _courseRepository.SaveChangesAsync();
+                await _repositories.CourseRepository.CreateCourseAsync(course);
+                await _repositories.CourseRepository.SaveChangesAsync();
 
-                var courseQueryable = await _courseRepository.GetCoursesAsync();
+                var courseQueryable = await _repositories.CourseRepository.GetCoursesAsync();
                 var fetchedCourse = await courseQueryable
                                                 .Include(c => c.Faculty)
                                                 .Include(c => c.UsersCourses)
@@ -165,7 +165,7 @@ namespace UniversityApi.Services
         {
             try
             {
-                var courseQueryable = await _courseRepository.GetCoursesAsync();
+                var courseQueryable = await _repositories.CourseRepository.GetCoursesAsync();
                 var course = await courseQueryable.AsQueryable()
                                           .Include(c => c.UsersCourses)
                                                 .ThenInclude(uc => uc.User)
@@ -177,10 +177,10 @@ namespace UniversityApi.Services
 
                 course.Id = input.Id.HasValue ? (int)input.Id : 0;
                 course.CourseName = input.CourseName;
-                course.FacultyId = input.FacultyId.HasValue ? (int)input.FacultyId : null;
+                course.FacultyId = input.FacultyId.HasValue ? input.FacultyId : null;
 
 
-                await _courseRepository.UpdateCourseAsync(course);
+                await _repositories.CourseRepository.UpdateCourseAsync(course);
 
 
                 if (!input.UserIds.IsNullOrEmpty())
@@ -210,7 +210,7 @@ namespace UniversityApi.Services
                 }
 
 
-                await _courseRepository.SaveChangesAsync();
+                await _repositories.CourseRepository.SaveChangesAsync();
                 return new ApiResponse<bool>(true, "Course changed Successfully", true);
 
             }
@@ -225,11 +225,11 @@ namespace UniversityApi.Services
         {
             try
             {
-                if (await _courseRepository.DeleteCourseAsync(courseId) &&
-                       await _courseRepository.DeleteUsersCoursesAsync(courseId) &&
-                       await _courseRepository.DeleteCourseLecturersAsync(courseId))
+                if (await _repositories.CourseRepository.DeleteCourseAsync(courseId) &&
+                       await _repositories.CourseRepository.DeleteUsersCoursesAsync(courseId) &&
+                       await _repositories.CourseRepository.DeleteCourseLecturersAsync(courseId))
                 {
-                    await _courseRepository.SaveChangesAsync();
+                    await _repositories.CourseRepository.SaveChangesAsync();
                     return new ApiResponse<bool>(true, "Course deleted successfully", true);
                 }
                 return new ApiResponse<bool>(false, "Failed to delete Course", false);

@@ -3,25 +3,23 @@ using Microsoft.IdentityModel.Tokens;
 using UniversityApi.Data;
 using UniversityApi.Dtos;
 using UniversityApi.Entities;
-using UniversityApi.Repositories;
 using UniversityApi.CustomResponses;
 using Microsoft.VisualBasic;
+using UniversityApi.Repository.Repositoryes;
+using UniversityApi.Repository;
+using UniversityApi.Service.ServiceAbstracts;
 
-namespace UniversityApi.Services
+namespace UniversityApi.Service.Services
 {
-    public class FacultyServices
+    public class FacultyServices : IFacultyServices
     {
         public readonly UniversistyContext _context;
-        public readonly FacultyRepository _facultyRepository;
-        public readonly UserRepository _userRepository;
-        public readonly CourseRepository _courseRepository;
+        public readonly IRepositories _repositories;
 
-        public FacultyServices(UniversistyContext context, FacultyRepository facultyRepository, UserRepository userRepository, CourseRepository courseRepository)
+        public FacultyServices(UniversistyContext context, IRepositories repositories)
         {
             _context = context;
-            _facultyRepository = facultyRepository;
-            _userRepository = userRepository;
-            _courseRepository = courseRepository;
+            _repositories = repositories;
         }
 
         public async Task<ApiResponse<FacultyGetDto>> GetFacultyByIdAsync(int facultyId)
@@ -29,7 +27,7 @@ namespace UniversityApi.Services
             try
             {
 
-                var facultyQueryable = await _facultyRepository.GetFacultiesAsync();
+                var facultyQueryable = await _repositories.FacultyRepository.GetFacultiesAsync();
                 var faculty = await facultyQueryable
                                                 .Include(f => f.Users)
                                                     .ThenInclude(u => u.UsersCourses)
@@ -78,7 +76,7 @@ namespace UniversityApi.Services
             try
             {
 
-                var faculties = await _facultyRepository.GetFacultiesWithRelatedDataAsync();
+                var faculties = await _repositories.FacultyRepository.GetFacultiesWithRelatedDataAsync();
 
                 var facultyDtos = faculties.Select(f => new FacultyGetDto
                 {
@@ -121,7 +119,7 @@ namespace UniversityApi.Services
                 };
 
 
-                await _facultyRepository.CreateFacultyAsync(faculty);
+                await _repositories.FacultyRepository.CreateFacultyAsync(faculty);
 
 
 
@@ -131,7 +129,7 @@ namespace UniversityApi.Services
 
                     foreach (var userId in input.UserIds)
                     {
-                        var user = await _userRepository.GetUserByIdAsync(userId);
+                        var user = await _repositories.UserRepository.GetUserByIdAsync(userId);
                         if (user != null)
                         {
                             user.FacultyId = faculty.Id;
@@ -146,7 +144,7 @@ namespace UniversityApi.Services
 
                     foreach (var courseId in input.CourseIds)
                     {
-                        var course = await _courseRepository.GetCourseByIdAsync(courseId);
+                        var course = await _repositories.CourseRepository.GetCourseByIdAsync(courseId);
 
                         if (course != null)
                         {
@@ -157,10 +155,10 @@ namespace UniversityApi.Services
                     }
                 }
 
-                await _userRepository.SaveChangesAsync();
-                await _facultyRepository.SaveChangesAsync();
+                await _repositories.UserRepository.SaveChangesAsync();
+                await _repositories.FacultyRepository.SaveChangesAsync();
 
-                var facultyQueryable = await _facultyRepository.GetFacultiesAsync();
+                var facultyQueryable = await _repositories.FacultyRepository.GetFacultiesAsync();
                 var fetchedFaculty = await facultyQueryable
                                                 .Include(f => f.Users)
                                                     .ThenInclude(u => u.UsersCourses)
@@ -170,7 +168,7 @@ namespace UniversityApi.Services
                                                         .ThenInclude(ul => ul.Lecturer)
                                                 .Include(f => f.Courses)
                                                 .FirstOrDefaultAsync(f => f.Id == faculty.Id);
-                if(fetchedFaculty == null)
+                if (fetchedFaculty == null)
                 {
                     return new ApiResponse<FacultyGetDto>(false, "Faculty not found", null);
                 }
@@ -180,7 +178,7 @@ namespace UniversityApi.Services
                     Id = fetchedFaculty.Id,
                     FacultyName = fetchedFaculty.FacultyName,
                     Users = fetchedFaculty.Users != null
-                                    ?   fetchedFaculty.Users.Select(u => new UserOnlyDto
+                                    ? fetchedFaculty.Users.Select(u => new UserOnlyDto
                                     {
                                         Id = u.Id,
                                         Name = u.Name,
@@ -210,19 +208,19 @@ namespace UniversityApi.Services
         {
             try
             {
-                var facultyQueryable = await _facultyRepository.GetFacultiesAsync();
+                var facultyQueryable = await _repositories.FacultyRepository.GetFacultiesAsync();
                 var faculty = await facultyQueryable.AsQueryable()
                     .Include(f => f.Users)
                     .Include(f => f.Courses)
                     .Where(f => f.Id == input.Id)
                     .FirstOrDefaultAsync();
 
-                
 
-                faculty.Id = input.Id.HasValue ? (int)input.Id.Value : 0;
+
+                faculty.Id = input.Id.HasValue ? input.Id.Value : 0;
                 faculty.FacultyName = input.FacultyName;
 
-                if (await _facultyRepository.UpdateFacultyAsync(faculty))
+                if (await _repositories.FacultyRepository.UpdateFacultyAsync(faculty))
                 {
                     if (faculty == null)
                     {
@@ -234,7 +232,7 @@ namespace UniversityApi.Services
                         faculty.Users.Clear();
                         foreach (var userId in input.UserIds)
                         {
-                            var user = await _userRepository.GetUserByIdAsync(userId);
+                            var user = await _repositories.UserRepository.GetUserByIdAsync(userId);
                             faculty.Users.Add(user);
                         }
                     }
@@ -244,12 +242,12 @@ namespace UniversityApi.Services
                         faculty.Courses.Clear();
                         foreach (var courseId in input.CourseIds)
                         {
-                            var course = await _courseRepository.GetCourseByIdAsync(courseId);
+                            var course = await _repositories.CourseRepository.GetCourseByIdAsync(courseId);
                             faculty.Courses.Add(course);
                         }
                     }
 
-                    await _facultyRepository.SaveChangesAsync();
+                    await _repositories.FacultyRepository.SaveChangesAsync();
                     return new ApiResponse<bool>(true, "Faculty updated successfully", true);
                 }
                 return new ApiResponse<bool>(false, "Error updating faculty", false);
@@ -264,9 +262,9 @@ namespace UniversityApi.Services
         {
             try
             {
-                if (await _facultyRepository.DeleteFacultyAsync(facultyId))
+                if (await _repositories.FacultyRepository.DeleteFacultyAsync(facultyId))
                 {
-                    await _facultyRepository.SaveChangesAsync();
+                    await _repositories.FacultyRepository.SaveChangesAsync();
                     return new ApiResponse<bool>(true, "Faculty deleted successfully", true);
                 }
                 return new ApiResponse<bool>(false, "Failed to delete Faculty", false);

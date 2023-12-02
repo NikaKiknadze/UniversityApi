@@ -1,7 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using UniversityApi;
 using UniversityApi.Data;
-using UniversityApi.Repositories;
-using UniversityApi.Services;
+using UniversityApi.Repository.Repositoryes;
+using UniversityApi.Service.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,15 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<UniversistyContext>(
     options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
     );
-
-builder.Services.AddScoped<UserRepository>();
-builder.Services.AddScoped<LecturerRepository>();
-builder.Services.AddScoped<FacultyRepository>();
-builder.Services.AddScoped<CourseRepository>();
-builder.Services.AddScoped<UserServices>();
-builder.Services.AddScoped<LecturerServices>();
-builder.Services.AddScoped<FacultyServices>();
-builder.Services.AddScoped<CourseServices>();
+builder.Services.RegisterDependencyConfiguration();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
