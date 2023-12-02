@@ -4,20 +4,21 @@ using UniversityApi.CustomResponses;
 using UniversityApi.Data;
 using UniversityApi.Dtos;
 using UniversityApi.Entities;
-using UniversityApi.Repositories;
+using UniversityApi.Repository;
+using UniversityApi.Repository.Repositoryes;
+using UniversityApi.Service.ServiceAbstracts;
 
-namespace UniversityApi.Services
+namespace UniversityApi.Service.Services
 {
-    public class LecturerServices
+    public class LecturerServices : ILecturerServices
     {
         private readonly UniversistyContext _context;
-        private readonly LecturerRepository _lecturerRepository
-            ;
+        private readonly IRepositories _repositories;
 
-        public LecturerServices(LecturerRepository lecturerRepository, UniversistyContext context)
+        public LecturerServices(IRepositories repositories, UniversistyContext context)
         {
             _context = context;
-            _lecturerRepository = lecturerRepository;
+            _repositories = repositories;
         }
 
 
@@ -25,7 +26,7 @@ namespace UniversityApi.Services
         {
             try
             {
-                var lecturers = await _lecturerRepository.GetLecturersWithRelatedDataAsync();
+                var lecturers = await _repositories.LecturerRepository.GetLecturersWithRelatedDataAsync();
 
                 var lecturerDtos = lecturers.Select(lecturer => new LecturerGetDto
                 {
@@ -98,18 +99,18 @@ namespace UniversityApi.Services
                     }
                 }
 
-                await _lecturerRepository.CreateLecturerAsync(lecturer);
-                await _lecturerRepository.SaveChangesAsync();
+                await _repositories.LecturerRepository.CreateLecturerAsync(lecturer);
+                await _repositories.LecturerRepository.SaveChangesAsync();
 
 
-                var lecturerQueryable = await _lecturerRepository.GetLecturersAsync();
+                var lecturerQueryable = await _repositories.LecturerRepository.GetLecturersAsync();
                 var fetchedLecturer = await lecturerQueryable
                                                    .Include(l => l.UsersLecturers)
                                                         .ThenInclude(ul => ul.User)
                                                    .Include(l => l.CoursesLecturers)
                                                          .ThenInclude(cl => cl.Course)
                                                     .FirstOrDefaultAsync(l => l.Id == lecturer.Id);
-                if(fetchedLecturer == null)
+                if (fetchedLecturer == null)
                 {
                     return new ApiResponse<LecturerGetDto>(false, "Lecturer not found", null);
                 }
@@ -150,19 +151,19 @@ namespace UniversityApi.Services
         {
             try
             {
-                var lecturerQueryable = await _lecturerRepository.GetLecturersAsync();
+                var lecturerQueryable = await _repositories.LecturerRepository.GetLecturersAsync();
                 var lecturer = await lecturerQueryable.AsQueryable()
                                                   .Include(l => l.UsersLecturers)
                                                   .Include(l => l.CoursesLecturers)
                                                   .Where(l => l.Id == input.Id)
                                                   .FirstOrDefaultAsync();
 
-                lecturer.Id = input.Id.HasValue ? (int)input.Id.Value : 0;
+                lecturer.Id = input.Id.HasValue ? input.Id.Value : 0;
                 lecturer.Name = input.Name;
                 lecturer.SurName = input.Surname;
-                lecturer.Age = input.Id.HasValue ? (int)input.Age.Value : 0;
+                lecturer.Age = input.Id.HasValue ? input.Age.Value : 0;
 
-                if (await _lecturerRepository.UpdateLecturerAsync(lecturer))
+                if (await _repositories.LecturerRepository.UpdateLecturerAsync(lecturer))
                 {
                     if (!input.UserIds.IsNullOrEmpty())
                     {
@@ -190,12 +191,12 @@ namespace UniversityApi.Services
                         }
                     }
 
-                    if(lecturer == null)
+                    if (lecturer == null)
                     {
                         return new ApiResponse<bool>(false, "Lecturer not found", false);
                     }
 
-                    await _lecturerRepository.SaveChangesAsync();
+                    await _repositories.LecturerRepository.SaveChangesAsync();
                     return new ApiResponse<bool>(true, "Lecturer changed successfully", true);
                 }
                 return new ApiResponse<bool>(false, "Failed to update Lecturer", false);
@@ -210,11 +211,11 @@ namespace UniversityApi.Services
         {
             try
             {
-                if (await _lecturerRepository.DeleteLecturerAsync(lecturerId) &&
-                   await _lecturerRepository.DeleteUsersLecturersAsync(lecturerId) &&
-                   await _lecturerRepository.DeleteCoursesLecturersAsync(lecturerId))
+                if (await _repositories.LecturerRepository.DeleteLecturerAsync(lecturerId) &&
+                   await _repositories.LecturerRepository.DeleteUsersLecturersAsync(lecturerId) &&
+                   await _repositories.LecturerRepository.DeleteCoursesLecturersAsync(lecturerId))
                 {
-                    await _lecturerRepository.SaveChangesAsync();
+                    await _repositories.LecturerRepository.SaveChangesAsync();
                     return new ApiResponse<bool>(true, "Lecturer deleted successfully", true);
                 }
                 return new ApiResponse<bool>(false, "Failed to delete Lecturer", false);

@@ -1,10 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using UniversityApi.Data;
 using UniversityApi.Entities;
+using UniversityApi.Repository.RepositoryAbstracts;
 
-namespace UniversityApi.Repositories
+namespace UniversityApi.Repository.Repositoryes
 {
-    public class UserRepository
+    public class UserRepository : IUserRepository
     {
         private readonly UniversistyContext _context;
         public UserRepository(UniversistyContext context)
@@ -42,13 +43,13 @@ namespace UniversityApi.Repositories
         {
             return await Task.Run(() => _context.Users.AsQueryable());
         }
-        
+
         public async Task<User> CreateUserAsync(User user)
         {
             await _context.Users.AddAsync(user);
             return user;
         }
-        
+
         public async Task<bool> UpdateUserAsync(User updatedUser)
         {
             var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == updatedUser.Id);
@@ -84,7 +85,7 @@ namespace UniversityApi.Repositories
             var usersCourses = await _context.UsersCoursesJoin
                                        .Where(u => u.UserId == userId)
                                        .ToListAsync();
-            if(usersCourses == null)
+            if (usersCourses == null)
             {
                 return false;
             }
@@ -97,7 +98,7 @@ namespace UniversityApi.Repositories
             var usersLecturers = await _context.UsersLecturersJoin
                                          .Where(u => u.UserId == userId)
                                          .ToListAsync();
-            if(usersLecturers == null)
+            if (usersLecturers == null)
             {
                 return false;
             }

@@ -1,10 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using UniversityApi.Data;
 using UniversityApi.Entities;
+using UniversityApi.Repository.RepositoryAbstracts;
 
-namespace UniversityApi.Repositories
+namespace UniversityApi.Repository.Repositoryes
 {
-    public class FacultyRepository
+    public class FacultyRepository : IFacultyRepository
     {
         private readonly UniversistyContext _context;
         public FacultyRepository(UniversistyContext context)

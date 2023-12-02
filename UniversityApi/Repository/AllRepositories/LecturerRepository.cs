@@ -1,10 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using UniversityApi.Data;
 using UniversityApi.Entities;
+using UniversityApi.Repository.RepositoryAbstracts;
 
-namespace UniversityApi.Repositories
+namespace UniversityApi.Repository.Repositoryes
 {
-    public class LecturerRepository
+    public class LecturerRepository : ILecturerRepository
     {
         private readonly UniversistyContext _context;
         public LecturerRepository(UniversistyContext context)
@@ -86,7 +87,7 @@ namespace UniversityApi.Repositories
 
             existingLecturer.Name = updatedLecturer.Name;
             existingLecturer.SurName = updatedLecturer.SurName;
-            existingLecturer.Age = (int)updatedLecturer.Age;
+            existingLecturer.Age = updatedLecturer.Age;
             return true;
         }
     }
