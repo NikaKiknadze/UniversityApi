@@ -8,7 +8,7 @@ namespace UniversityApi.Service.ServiceAbstracts
         public Task<ApiResponse<UserGetDto>> GetUserByIdAsync(int userId);
         public Task<ApiResponse<List<UserGetDto>>> GetUsersAsync();
         public Task<ApiResponse<UserGetDto>> CreateUserAsync(UserPostDto input);
-        public Task<ApiResponse<bool>> UpdateUserAsync(UserPutDto input);
-        public Task<ApiResponse<bool>> DeleteUserAsync(int userId);
+        public Task<ApiResponse<string>> UpdateUserAsync(UserPutDto input);
+        public Task<ApiResponse<string>> DeleteUserAsync(int userId);
     }
 }
