@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.VisualBasic;
+using System.Net;
+using UniversityApi.CustomResponses;
 using UniversityApi.Dtos;
 using UniversityApi.Service.ServiceAbstracts;
 using UniversityApi.Service.Services;
@@ -30,12 +32,6 @@ namespace UniversityApi.Controllers
         public async Task<ActionResult<UserGetDto>> GetUsersByIdAsync(int userId)
         {
             var result = await _userServices.GetUserByIdAsync(userId);
-
-            if (result == null)
-            {
-                NotFound();
-            }
-
             return Ok(result);
 
         }
@@ -44,23 +40,13 @@ namespace UniversityApi.Controllers
         public async Task<ActionResult<UserGetDto>> GetUsersAsync()
         {
             var result = await _userServices.GetUsersAsync();
-
-            if (result == null)
-            {
-                NotFound();
-            }
             return Ok(result);
         }
 
-        [HttpPost("Users", Name = "PostUser" )]
+        [HttpPost("Users", Name = "PostUser")]
         public async Task<ActionResult<UserGetDto>> PostUsesrAsync(UserPostDto input)
         {
             var result = await _userServices.CreateUserAsync(input);
-
-            if (result == null)
-            {
-                NotFound();
-            }
             return Ok(result);
         }
 
@@ -68,11 +54,6 @@ namespace UniversityApi.Controllers
         public async Task<ActionResult<bool>> PutUserAsync(UserPutDto input)
         {
             var result = await _userServices.UpdateUserAsync(input);
-
-            if (result == null)
-            {
-                NotFound(result);
-            }
             return Ok(result);
         }
 
@@ -80,25 +61,15 @@ namespace UniversityApi.Controllers
         public async Task<ActionResult<bool>> DeleteUserAsync(int userId)
         {
             var result = await _userServices.DeleteUserAsync(userId);
-
-            if (result == null)
-            {
-                NotFound();
-            }
             return Ok(result);
         }
         #endregion
 
         #region CourseServices
         [HttpGet("Courses", Name = "GetCourses")]
-        public async Task<ActionResult<CourseGetDto>>  GetCoursesAsync()
+        public async Task<ActionResult<CourseGetDto>> GetCoursesAsync()
         {
             var result = await _courseServices.GetCoursesAsync();
-
-            if (result == null)
-            {
-                NotFound();
-            }
             return Ok(result);
         }
 
@@ -106,11 +77,6 @@ namespace UniversityApi.Controllers
         public async Task<ActionResult<CourseGetDto>> CreateCourseAsync(CoursePostDto input)
         {
             var result = await _courseServices.CreateCourseAsync(input);
-
-            if (result == null)
-            {
-                NotFound();
-            }
             return Ok(result);
         }
 
@@ -118,11 +84,6 @@ namespace UniversityApi.Controllers
         public async Task<ActionResult<bool>> PutCourseAsync(CoursePutDto input)
         {
             var result = await _courseServices.UpdateCourseAsync(input);
-
-            if (result == null)
-            {
-                NotFound();
-            }
             return Ok(result);
         }
 
@@ -130,11 +91,6 @@ namespace UniversityApi.Controllers
         public async Task<ActionResult<bool>> DeleteCourse(int courseId)
         {
             var result = await _courseServices.DeleteCourse(courseId);
-
-            if (result == null)
-            {
-                NotFound();
-            }
             return Ok(result);
         }
 
@@ -142,14 +98,9 @@ namespace UniversityApi.Controllers
 
         #region LecturerServices
         [HttpGet("Lecturers", Name = "GetLecturers")]
-        public async Task<ActionResult>  GetLecturersAsync()
+        public async Task<ActionResult> GetLecturersAsync()
         {
             var result = await _lecturerServices.GetLecturersAsync();
-
-            if (result == null)
-            {
-                NotFound();
-            }
             return Ok(result);
         }
 
@@ -157,11 +108,6 @@ namespace UniversityApi.Controllers
         public async Task<ActionResult<LecturerGetDto>> CreateLecturerAsync(LecturerPostDto input)
         {
             var result = await _lecturerServices.CreateLecturerAsync(input);
-
-            if (result == null)
-            {
-                NotFound();
-            }
             return Ok(result);
         }
 
@@ -169,11 +115,6 @@ namespace UniversityApi.Controllers
         public async Task<ActionResult<bool>> PutLecturerAsync(LecturerPutDto input)
         {
             var result = await _lecturerServices.UpdateLecturerAsync(input);
-
-            if (result == null)
-            {
-                NotFound();
-            }
             return Ok(result);
         }
 
@@ -181,11 +122,6 @@ namespace UniversityApi.Controllers
         public async Task<ActionResult<bool>> DeleteLecturerAsync(int lecturerId)
         {
             var result = await _lecturerServices.DeleteLecturerAsync(lecturerId);
-
-            if (result == null)
-            {
-                NotFound();
-            }
             return Ok(result);
         }
         #endregion
@@ -195,11 +131,6 @@ namespace UniversityApi.Controllers
         public async Task<ActionResult<FacultyGetDto>> GetFacultyesByIdAsync(int facultyId)
         {
             var result = await _faultyServices.GetFacultyByIdAsync(facultyId);
-
-            if (result == null)
-            {
-                NotFound();
-            }
             return Ok(result);
         }
 
@@ -207,11 +138,6 @@ namespace UniversityApi.Controllers
         public async Task<ActionResult<FacultyGetDto>> GetFacultiesAsync()
         {
             var result = await _faultyServices.GetFacultiesAsync();
-
-            if (result == null)
-            {
-                NotFound();
-            }
             return Ok(result);
         }
 
@@ -219,11 +145,6 @@ namespace UniversityApi.Controllers
         public async Task<ActionResult<FacultyGetDto>> PostFacultyAsync(FacultyPostDto input)
         {
             var result = await _faultyServices.CreateFacultyAsync(input);
-
-            if (result == null)
-            {
-                NotFound();
-            }
             return Ok(result);
         }
 
@@ -231,11 +152,6 @@ namespace UniversityApi.Controllers
         public async Task<ActionResult<bool>> PutFacultyAsync(FacultyPutDto input)
         {
             var result = await _faultyServices.UpdateFacultyAsync(input);
-
-            if (result == null)
-            {
-                NotFound();
-            }
             return Ok(result);
         }
 
@@ -243,11 +159,6 @@ namespace UniversityApi.Controllers
         public async Task<ActionResult<bool>> DeleteFacultyAsync(int facultyId)
         {
             var result = await _faultyServices.DeleteFacultyAsync(facultyId);
-
-            if (result == null)
-            {
-                NotFound();
-            }
             return Ok(result);
         }
         #endregion

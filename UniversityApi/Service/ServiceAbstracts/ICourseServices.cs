@@ -7,7 +7,7 @@ namespace UniversityApi.Service.ServiceAbstracts
     {
         public Task<ApiResponse<List<CourseGetDto>>> GetCoursesAsync();
         public Task<ApiResponse<CourseGetDto>> CreateCourseAsync(CoursePostDto input);
-        public Task<ApiResponse<bool>> UpdateCourseAsync(CoursePutDto input);
-        public Task<ApiResponse<bool>> DeleteCourse(int courseId);
+        public Task<ApiResponse<string>> UpdateCourseAsync(CoursePutDto input);
+        public Task<ApiResponse<string>> DeleteCourse(int courseId);
     }
 }
