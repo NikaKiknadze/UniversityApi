@@ -1,14 +1,16 @@
 ﻿using UniversityApi.CustomResponses;
 using UniversityApi.Dtos;
+using UniversityApi.Entities;
 
 namespace UniversityApi.Service.ServiceAbstracts
 {
     public interface IUserServices
     {
-        public Task<ApiResponse<UserGetDto>> GetUserByIdAsync(int userId);
-        public Task<ApiResponse<List<UserGetDto>>> GetUsersAsync();
-        public Task<ApiResponse<UserGetDto>> CreateUserAsync(UserPostDto input);
-        public Task<ApiResponse<string>> UpdateUserAsync(UserPutDto input);
-        public Task<ApiResponse<string>> DeleteUserAsync(int userId);
+        Task<ApiResponse<GetDtosWithCount<List<UserGetDto>>>> GetUsersAsync(UserGetFilter filter, CancellationToken cancellationToken);
+        Task<ApiResponse<UserGetDto>> CreateUserAsync(UserPostDto input, CancellationToken cancellationToken);
+        Task<ApiResponse<string>> UpdateUserAsync(UserPutDto input, CancellationToken cancellationToken);
+        Task<ApiResponse<string>> DeleteUserAsync(int userId, CancellationToken cancellationToken);
+        List<User> FilterData(UserGetFilter filter, IQueryable<User> users);
+
     }
 }

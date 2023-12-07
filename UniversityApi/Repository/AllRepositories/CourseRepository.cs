@@ -13,12 +13,12 @@ namespace UniversityApi.Repository.Repositoryes
             _context = context;
         }
 
-        public async Task SaveChangesAsync()
+        public async Task SaveChangesAsync(CancellationToken cancellationToken)
         {
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task<Course> GetCourseByIdAsync(int courseId)
+        public async Task<Course> GetCourseByIdAsync(int courseId, CancellationToken cancellationToken)
         {
             return await _context.Courses
                 .Include(c => c.UsersCourses)
@@ -29,7 +29,7 @@ namespace UniversityApi.Repository.Repositoryes
                 .FirstOrDefaultAsync(c => c.Id == courseId);
         }
 
-        public async Task<IQueryable<Course>> GetCoursesWithRelatedDataAsync()
+        public async Task<IQueryable<Course>> GetCoursesWithRelatedDataAsync(CancellationToken cancellationToken)
         {
             var course = await _context.Courses
                            .Include(c => c.UsersCourses)
@@ -37,24 +37,24 @@ namespace UniversityApi.Repository.Repositoryes
                            .Include(c => c.CoursesLecturers)
                                 .ThenInclude(cl => cl.Lecturer)
                            .Include(c => c.Faculty)
-                           .ToListAsync();
+                           .ToListAsync(cancellationToken);
             return course.AsQueryable();
         }
 
-        public async Task<IQueryable<Course>> GetCoursesAsync()
+        public async Task<IQueryable<Course>> GetCoursesAsync(CancellationToken cancellationToken)
         {
-            return await Task.Run(() => _context.Courses.AsQueryable());
+            return await Task.Run(() => _context.Courses.AsQueryable(), cancellationToken);
         }
 
-        public async Task<Course> CreateCourseAsync(Course course)
+        public async Task<Course> CreateCourseAsync(Course course, CancellationToken cancellationToken)
         {
-            await _context.Courses.AddAsync(course);
+            await _context.Courses.AddAsync(course, cancellationToken);
             return course;
         }
 
-        public async Task<bool> UpdateCourseAsync(Course updatedCourse)
+        public async Task<bool> UpdateCourseAsync(Course updatedCourse, CancellationToken cancellationToken)
         {
-            var existingCourse = await _context.Courses.FirstOrDefaultAsync(c => c.Id == updatedCourse.Id);
+            var existingCourse = await _context.Courses.FirstOrDefaultAsync(c => c.Id == updatedCourse.Id, cancellationToken);
 
             if (existingCourse == null)
             {
@@ -66,9 +66,9 @@ namespace UniversityApi.Repository.Repositoryes
             return true;
         }
 
-        public async Task<bool> DeleteCourseAsync(int courseId)
+        public async Task<bool> DeleteCourseAsync(int courseId, CancellationToken cancellationToken)
         {
-            var course = await _context.Courses.FirstOrDefaultAsync(c => c.Id == courseId);
+            var course = await _context.Courses.FirstOrDefaultAsync(c => c.Id == courseId, cancellationToken);
 
             if (course == null)
             {
@@ -79,11 +79,11 @@ namespace UniversityApi.Repository.Repositoryes
             return true;
         }
 
-        public async Task<bool> DeleteUsersCoursesAsync(int courseId)
+        public async Task<bool> DeleteUsersCoursesAsync(int courseId, CancellationToken cancellationToken)
         {
             var usersCourses = await _context.UsersCoursesJoin
                                        .Where(c => c.CourseId == courseId)
-                                       .ToListAsync();
+                                       .ToListAsync(cancellationToken);
             if (usersCourses == null)
             {
                 return false;
@@ -92,11 +92,11 @@ namespace UniversityApi.Repository.Repositoryes
             return true;
         }
 
-        public async Task<bool> DeleteCourseLecturersAsync(int courseId)
+        public async Task<bool> DeleteCourseLecturersAsync(int courseId, CancellationToken cancellationToken)
         {
             var courseLecturers = await _context.CoursesLecturersJoin
                                          .Where(c => c.CourseId == courseId)
-                                         .ToListAsync();
+                                         .ToListAsync(cancellationToken);
             if (courseLecturers == null)
             {
                 return false;

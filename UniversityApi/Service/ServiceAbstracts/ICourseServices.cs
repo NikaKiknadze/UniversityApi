@@ -1,13 +1,15 @@
 ﻿using UniversityApi.CustomResponses;
 using UniversityApi.Dtos;
+using UniversityApi.Entities;
 
 namespace UniversityApi.Service.ServiceAbstracts
 {
     public interface ICourseServices
     {
-        public Task<ApiResponse<List<CourseGetDto>>> GetCoursesAsync();
-        public Task<ApiResponse<CourseGetDto>> CreateCourseAsync(CoursePostDto input);
-        public Task<ApiResponse<string>> UpdateCourseAsync(CoursePutDto input);
-        public Task<ApiResponse<string>> DeleteCourse(int courseId);
+        Task<ApiResponse<GetDtosWithCount<List<CourseGetDto>>>> GetCoursesAsync(CourseGetFilter filter, CancellationToken cancellationToken);
+        List<Course> FilterData(CourseGetFilter filter, IQueryable<Course> courses);
+        Task<ApiResponse<CourseGetDto>> CreateCourseAsync(CoursePostDto input, CancellationToken cancellationToken);
+        Task<ApiResponse<string>> UpdateCourseAsync(CoursePutDto input, CancellationToken cancellationToken);
+        Task<ApiResponse<string>> DeleteCourse(int courseId, CancellationToken cancellationToken);
     }
 }

@@ -4,17 +4,16 @@
     {
         public bool? Success { get; set; }
         public string? Message { get; set; }
-        public T? Data { get; set; } = default(T);
+        public T? Data { get; set; }
 
-        public static ApiResponse<T> SuccesResult(T Data)
+        public static ApiResponse<T> SuccesResult(T? data)
         {
             return new ApiResponse<T>()
             {
                 Success = true,
-                Data = Data
+                Data = data
             };
         }
-
 
         public static ApiResponse<T> ErrorResult(string? error)
         {

@@ -4,13 +4,13 @@ namespace UniversityApi.Repository.RepositoryAbstracts
 {
     public interface ILecturerRepository
     {
-        public Task SaveChangesAsync();
-        public Task<IQueryable<Lecturer>> GetLecturersAsync();
-        public Task<IQueryable<Lecturer>> GetLecturersWithRelatedDataAsync();
-        public Task<Lecturer> CreateLecturerAsync(Lecturer lecturer);
-        public Task<bool> DeleteLecturerAsync(int lecturerId);
-        public Task<bool> DeleteUsersLecturersAsync(int lecturerId);
-        public Task<bool> DeleteCoursesLecturersAsync(int lecturerId);
-        public Task<bool> UpdateLecturerAsync(Lecturer updatedLecturer);
+        Task SaveChangesAsync(CancellationToken cancellationToken);
+        Task<IQueryable<Lecturer>> GetLecturersAsync(CancellationToken cancellationToken);
+        Task<IQueryable<Lecturer>> GetLecturersWithRelatedDataAsync(CancellationToken cancellationToken);
+        Task<Lecturer> CreateLecturerAsync(Lecturer lecturer, CancellationToken cancellationToken);
+        Task<bool> DeleteLecturerAsync(int lecturerId, CancellationToken cancellationToken);
+        Task<bool> DeleteUsersLecturersAsync(int lecturerId, CancellationToken cancellationToken);
+        Task<bool> DeleteCoursesLecturersAsync(int lecturerId, CancellationToken cancellationToken);
+        Task<bool> UpdateLecturerAsync(Lecturer updatedLecturer, CancellationToken cancellationToken);
     }
 }

@@ -5,10 +5,9 @@ namespace UniversityApi.Service.ServiceAbstracts
 {
     public interface IFacultyServices
     {
-        public Task<ApiResponse<FacultyGetDto>> GetFacultyByIdAsync(int facultyId);
-        public Task<ApiResponse<List<FacultyGetDto>>> GetFacultiesAsync();
-        public Task<ApiResponse<FacultyGetDto>> CreateFacultyAsync(FacultyPostDto input);
-        public Task<ApiResponse<string>> UpdateFacultyAsync(FacultyPutDto input);
-        public Task<ApiResponse<string>> DeleteFacultyAsync(int facultyId);
+        Task<ApiResponse<GetDtosWithCount<List<FacultyGetDto>>>> GetFacultiesAsync(FacultyGetFilter filter, CancellationToken cancellationToken);
+        Task<ApiResponse<FacultyGetDto>> CreateFacultyAsync(FacultyPostDto input, CancellationToken cancellationToken);
+        Task<ApiResponse<string>> UpdateFacultyAsync(FacultyPutDto input, CancellationToken cancellationToken);
+        Task<ApiResponse<string>> DeleteFacultyAsync(int facultyId, CancellationToken cancellationToken);
     }
 }
