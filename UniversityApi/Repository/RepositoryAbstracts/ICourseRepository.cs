@@ -4,14 +4,14 @@ namespace UniversityApi.Repository.RepositoryAbstracts
 {
     public interface ICourseRepository
     {
-        public Task SaveChangesAsync();
-        public Task<Course> GetCourseByIdAsync(int courseId);
-        public Task<IQueryable<Course>> GetCoursesWithRelatedDataAsync();
-        public Task<IQueryable<Course>> GetCoursesAsync();
-        public Task<Course> CreateCourseAsync(Course course);
-        public Task<bool> UpdateCourseAsync(Course updatedCourse);
-        public Task<bool> DeleteCourseAsync(int courseId);
-        public Task<bool> DeleteUsersCoursesAsync(int courseId);
-        public Task<bool> DeleteCourseLecturersAsync(int courseId);
+        Task SaveChangesAsync(CancellationToken cancellationToken);
+        Task<Course> GetCourseByIdAsync(int courseId, CancellationToken cancellationToken);
+        Task<IQueryable<Course>> GetCoursesWithRelatedDataAsync(CancellationToken cancellationToken);
+        Task<IQueryable<Course>> GetCoursesAsync(CancellationToken cancellationToken);
+        Task<Course> CreateCourseAsync(Course course, CancellationToken cancellationToken);
+        Task<bool> UpdateCourseAsync(Course updatedCourse, CancellationToken cancellationToken);
+        Task<bool> DeleteCourseAsync(int courseId, CancellationToken cancellationToken);
+        Task<bool> DeleteUsersCoursesAsync(int courseId, CancellationToken cancellationToken);
+        Task<bool> DeleteCourseLecturersAsync(int courseId, CancellationToken cancellationToken);
     }
 }

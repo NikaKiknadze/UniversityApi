@@ -22,16 +22,23 @@ namespace UniversityApi.Service.Services
         }
 
 
-        public async Task<ApiResponse<List<LecturerGetDto>>> GetLecturersAsync()
+        public async Task<ApiResponse<GetDtosWithCount<List<LecturerGetDto>>>> GetLecturersAsync(LecturerGetFilter filter, CancellationToken cancellationToken)
         {
-            var lecturers = await _repositories.LecturerRepository.GetLecturersWithRelatedDataAsync();
+            var lecturers = await _repositories.LecturerRepository.GetLecturersWithRelatedDataAsync(cancellationToken);
 
             if (lecturers == null)
             {
                 throw new CustomExceptions.NotFoundException("Lecturers not found");
             }
 
-            var lecturerDtos = lecturers.Select(lecturer => new LecturerGetDto
+            var filteredLecturers = FilterData(filter, lecturers);
+
+            if(filteredLecturers.Count == 0)
+            {
+                throw new CustomExceptions.NotFoundException("Lecturers not found");
+            }
+
+            var lecturerDtos = filteredLecturers.Select(lecturer => new LecturerGetDto
             {
                 Id = lecturer.Id,
                 Name = lecturer.Name,
@@ -53,13 +60,54 @@ namespace UniversityApi.Service.Services
                                       CourseName = l.Course.CourseName
                                   }).ToList()
                                   : new List<CourseOnlyDto>()
-            }).ToList();
+            })
+                .OrderByDescending(l => l.Id)
+                .Skip(filter.Offset ?? 0)
+                .Take(filter.Limit ?? 10)
+                .ToList();
 
-            return ApiResponse<List<LecturerGetDto>>.SuccesResult(lecturerDtos);
+            return ApiResponse<GetDtosWithCount<List<LecturerGetDto>>>.SuccesResult(new GetDtosWithCount<List<LecturerGetDto>>
+            {
+                Data = lecturerDtos,
+                Count = filteredLecturers.Count()
+            });
 
         }
 
-        public async Task<ApiResponse<LecturerGetDto>> CreateLecturerAsync(LecturerPostDto input)
+        public List<Lecturer> FilterData(LecturerGetFilter filter, IQueryable<Lecturer> lecturers)
+        {
+            if(filter.Id != null)
+            {
+                lecturers = lecturers.Where(l => l.Id == filter.Id);
+            }
+            if (!filter.Name.IsNullOrEmpty())
+            {
+                lecturers = lecturers.Where(l => l.Name.Contains(filter.Name));
+            }
+            if (!filter.SurName.IsNullOrEmpty())
+            {
+                lecturers = lecturers.Where(l => l.SurName.Contains(filter.SurName));
+            }
+            if(filter.Age != null)
+            {
+                lecturers = lecturers.Where(l => l.Age == filter.Age);
+            }
+            if(filter.UserIds != null && filter.UserIds.Any())
+            {
+                lecturers = lecturers.Where(l => l.UsersLecturers
+                                     .Select(l => l.UserId)
+                                     .Any(lecturerId => filter.UserIds.Contains(lecturerId)));
+            }
+            if(filter.CourseIds != null && filter.CourseIds.Any())
+            {
+                lecturers = lecturers.Where(l => l.CoursesLecturers
+                                     .Select(l => l.CourseId)
+                                     .Any(lecturerId => filter.CourseIds.Contains(lecturerId)));
+            }
+            return lecturers.ToList();
+        }
+
+        public async Task<ApiResponse<LecturerGetDto>> CreateLecturerAsync(LecturerPostDto input, CancellationToken cancellationToken)
         {
             var lecturer = new Lecturer
             {
@@ -104,11 +152,11 @@ namespace UniversityApi.Service.Services
                 throw new Exception();
             }
 
-            await _repositories.LecturerRepository.CreateLecturerAsync(lecturer);
-            await _repositories.LecturerRepository.SaveChangesAsync();
+            await _repositories.LecturerRepository.CreateLecturerAsync(lecturer, cancellationToken);
+            await _repositories.LecturerRepository.SaveChangesAsync(cancellationToken);
 
 
-            var lecturerQueryable = await _repositories.LecturerRepository.GetLecturersAsync();
+            var lecturerQueryable = await _repositories.LecturerRepository.GetLecturersAsync(cancellationToken);
             var fetchedLecturer = await lecturerQueryable
                                                .Include(l => l.UsersLecturers)
                                                     .ThenInclude(ul => ul.User)
@@ -147,9 +195,9 @@ namespace UniversityApi.Service.Services
             return ApiResponse<LecturerGetDto>.SuccesResult(lecturerDto);
         }
 
-        public async Task<ApiResponse<string>> UpdateLecturerAsync(LecturerPutDto input)
+        public async Task<ApiResponse<string>> UpdateLecturerAsync(LecturerPutDto input, CancellationToken cancellationToken)
         {
-            var lecturerQueryable = await _repositories.LecturerRepository.GetLecturersAsync();
+            var lecturerQueryable = await _repositories.LecturerRepository.GetLecturersAsync(cancellationToken);
             var lecturer = await lecturerQueryable.AsQueryable()
                                               .Include(l => l.UsersLecturers)
                                               .Include(l => l.CoursesLecturers)
@@ -161,7 +209,7 @@ namespace UniversityApi.Service.Services
             lecturer.SurName = input.Surname;
             lecturer.Age = input.Id.HasValue ? input.Age.Value : 0;
 
-            if (await _repositories.LecturerRepository.UpdateLecturerAsync(lecturer))
+            if (await _repositories.LecturerRepository.UpdateLecturerAsync(lecturer, cancellationToken))
             {
                 if (!input.UserIds.IsNullOrEmpty())
                 {
@@ -194,7 +242,7 @@ namespace UniversityApi.Service.Services
                     throw new CustomExceptions.NotFoundException("Lecturer not found");
                 }
 
-                await _repositories.LecturerRepository.SaveChangesAsync();
+                await _repositories.LecturerRepository.SaveChangesAsync(cancellationToken);
                 return ApiResponse<string>.SuccesResult("Lecturer changed successfully");
             }
             else
@@ -203,25 +251,25 @@ namespace UniversityApi.Service.Services
             }
         }
 
-        public async Task<ApiResponse<string>> DeleteLecturerAsync(int lecturerId)
+        public async Task<ApiResponse<string>> DeleteLecturerAsync(int lecturerId, CancellationToken cancellationToken)
         {
             var lecturer = await _context.Lecturers
                                    .Include(ul => ul.UsersLecturers)
                                         .ThenInclude(u => u.User)
                                     .Include(cl => cl.CoursesLecturers)
                                         .ThenInclude(c => c.Course)
-                                    .FirstOrDefaultAsync(l => l.Id == lecturerId);
+                                    .FirstOrDefaultAsync(l => l.Id == lecturerId, cancellationToken);
             
             if(lecturer == null)
             {
                 throw new CustomExceptions.NotFoundException("Lecturer not fonund on that Id");
             }
 
-            if (await _repositories.LecturerRepository.DeleteLecturerAsync(lecturerId) &&
-                   await _repositories.LecturerRepository.DeleteUsersLecturersAsync(lecturerId) &&
-                   await _repositories.LecturerRepository.DeleteCoursesLecturersAsync(lecturerId))
+            if (await _repositories.LecturerRepository.DeleteLecturerAsync(lecturerId, cancellationToken) &&
+                   await _repositories.LecturerRepository.DeleteUsersLecturersAsync(lecturerId, cancellationToken) &&
+                   await _repositories.LecturerRepository.DeleteCoursesLecturersAsync(lecturerId, cancellationToken))
             {
-                await _repositories.LecturerRepository.SaveChangesAsync();
+                await _repositories.LecturerRepository.SaveChangesAsync(cancellationToken);
                 return ApiResponse<string>.SuccesResult("Lecturer deleted successfully");
             }
             else

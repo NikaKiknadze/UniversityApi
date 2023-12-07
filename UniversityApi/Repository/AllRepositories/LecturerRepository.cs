@@ -13,36 +13,36 @@ namespace UniversityApi.Repository.Repositoryes
             _context = context;
         }
 
-        public async Task SaveChangesAsync()
+        public async Task SaveChangesAsync(CancellationToken cancellationToken)
         {
-            await _context.SaveChangesAsync();
+           await _context.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task<IQueryable<Lecturer>> GetLecturersAsync()
+        public async Task<IQueryable<Lecturer>> GetLecturersAsync(CancellationToken cancellationToken)
         {
-            return await Task.Run(() => _context.Lecturers.AsQueryable());
+            return await Task.Run(() => _context.Lecturers.AsQueryable(), cancellationToken);
         }
 
-        public async Task<IQueryable<Lecturer>> GetLecturersWithRelatedDataAsync()
+        public async Task<IQueryable<Lecturer>> GetLecturersWithRelatedDataAsync(CancellationToken cancellationToken)
         {
             var lecturer = await _context.Lecturers
                             .Include(l => l.UsersLecturers)
                                 .ThenInclude(ul => ul.User)
                             .Include(l => l.CoursesLecturers)
                                 .ThenInclude(cl => cl.Course)
-                            .ToListAsync();
+                            .ToListAsync(cancellationToken);
             return lecturer.AsQueryable();
         }
 
-        public async Task<Lecturer> CreateLecturerAsync(Lecturer lecturer)
+        public async Task<Lecturer> CreateLecturerAsync(Lecturer lecturer, CancellationToken cancellationToken)
         {
-            await _context.Lecturers.AddAsync(lecturer);
+            await _context.Lecturers.AddAsync(lecturer, cancellationToken);
             return lecturer;
         }
 
-        public async Task<bool> DeleteLecturerAsync(int lecturerId)
+        public async Task<bool> DeleteLecturerAsync(int lecturerId, CancellationToken cancellationToken)
         {
-            var lecturer = await _context.Lecturers.FirstOrDefaultAsync(l => l.Id == lecturerId);
+            var lecturer = await _context.Lecturers.FirstOrDefaultAsync(l => l.Id == lecturerId, cancellationToken);
             if (lecturer == null)
             {
                 return false;
@@ -51,11 +51,11 @@ namespace UniversityApi.Repository.Repositoryes
             return true;
         }
 
-        public async Task<bool> DeleteUsersLecturersAsync(int lecturerId)
+        public async Task<bool> DeleteUsersLecturersAsync(int lecturerId, CancellationToken cancellationToken)
         {
             var usersLecturers = await _context.UsersLecturersJoin
                                          .Where(l => l.LecturerId == lecturerId)
-                                         .ToListAsync();
+                                         .ToListAsync(cancellationToken);
             if (usersLecturers == null)
             {
                 return false;
@@ -64,11 +64,11 @@ namespace UniversityApi.Repository.Repositoryes
             return true;
         }
 
-        public async Task<bool> DeleteCoursesLecturersAsync(int lecturerId)
+        public async Task<bool> DeleteCoursesLecturersAsync(int lecturerId, CancellationToken cancellationToken)
         {
             var usersLecturers = await _context.CoursesLecturersJoin
                                          .Where(l => l.LectureId == lecturerId)
-                                         .ToListAsync();
+                                         .ToListAsync(cancellationToken);
             if (usersLecturers == null)
             {
                 return false;
@@ -77,9 +77,9 @@ namespace UniversityApi.Repository.Repositoryes
             return true;
         }
 
-        public async Task<bool> UpdateLecturerAsync(Lecturer updatedLecturer)
+        public async Task<bool> UpdateLecturerAsync(Lecturer updatedLecturer, CancellationToken cancellationToken)
         {
-            var existingLecturer = await _context.Lecturers.FirstOrDefaultAsync(l => l.Id == updatedLecturer.Id);
+            var existingLecturer = await _context.Lecturers.FirstOrDefaultAsync(l => l.Id == updatedLecturer.Id, cancellationToken);
             if (existingLecturer == null)
             {
                 return false;

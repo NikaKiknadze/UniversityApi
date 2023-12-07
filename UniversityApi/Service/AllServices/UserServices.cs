@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc.Diagnostics;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using System.Xml;
@@ -22,67 +23,23 @@ namespace UniversityApi.Service.Services
             _context = context;
             _repositories = userRepository;
         }
-
-        public async Task<ApiResponse<UserGetDto>> GetUserByIdAsync(int userId)
+        public async Task<ApiResponse<GetDtosWithCount<List<UserGetDto>>>>GetUsersAsync(UserGetFilter filter, CancellationToken cancellationToken)
         {
-            var userQueryable = await _repositories.UserRepository.GetUsersAsync();
-            var user = await userQueryable
-                                      .Include(u => u.Faculty)
-                                      .Include(u => u.UsersLecturers)
-                                          .ThenInclude(ul => ul.Lecturer)
-                                      .Include(u => u.UsersCourses)
-                                          .ThenInclude(uc => uc.Course)
-                                      .FirstOrDefaultAsync(u => u.Id == userId);
-            if (user == null)
-            {
-                throw new CustomExceptions.NotFoundException("Users not found");
-            }
-
-            var userDto = new UserGetDto
-            {
-                Id = user.Id,
-                Name = user.Name,
-                SurName = user.SurName,
-                Age = user.Age,
-                Faculty = user.Faculty != null
-                          ? new FacultyOnlyDto
-                          {
-                              Id = user.Faculty.Id,
-                              FacultyName = user.Faculty.FacultyName
-                          }
-                          : null,
-                Courses = user.UsersCourses != null
-                          ? user.UsersCourses.Select(uc => new CourseOnlyDto
-                          {
-                              Id = uc.Course.Id,
-                              CourseName = uc.Course.CourseName
-                          }).ToList()
-                          : new List<CourseOnlyDto>(),
-                Lecturers = user.UsersLecturers != null
-                            ? user.UsersLecturers.Select(ul => new LecturerOnlyDto
-                            {
-                                Id = ul.Lecturer.Id,
-                                Name = ul.Lecturer.Name,
-                                SurName = ul.Lecturer.SurName,
-                                Age = ul.Lecturer.Age
-                            }).ToList()
-                            : new List<LecturerOnlyDto>()
-            };
-
-            var successResult = ApiResponse<UserGetDto>.SuccesResult(userDto);
-            return successResult;
-        }
-
-        public async Task<ApiResponse<List<UserGetDto>>> GetUsersAsync()
-        {
-            var users = await _repositories.UserRepository.GetUsersWithRelatedDataAsync();
-
+            var users = await _repositories.UserRepository.GetUsersWithRelatedDataAsync(cancellationToken);
+            
             if (users == null)
             {
                 throw new CustomExceptions.NotFoundException("User not found");
             }
 
-            var userDtos = users.Select(user => new UserGetDto
+            var filteredUsers = FilterData(filter, users);
+
+            if (filteredUsers.Count == 0)
+            {
+                throw new CustomExceptions.NotFoundException("User not found");
+            }
+
+            var userDtos = filteredUsers.Select(user => new UserGetDto
             {
                 Id = user.Id,
                 Name = user.Name,
@@ -111,13 +68,57 @@ namespace UniversityApi.Service.Services
                                 Age = ul.Lecturer.Age
                             }).ToList()
                             : new List<LecturerOnlyDto>()
-            }).ToList();
-
-            var successResult = ApiResponse<List<UserGetDto>>.SuccesResult(userDtos);
-            return successResult;
+            })
+                .OrderByDescending(u => u.Id)
+                .Skip(filter.Offset ?? 0)
+                .Take(filter.Limit ?? 10)
+                .ToList();
+            return ApiResponse<GetDtosWithCount<List<UserGetDto>>>.SuccesResult(new GetDtosWithCount<List<UserGetDto>>
+            {
+                Data = userDtos,
+                Count = filteredUsers.Count()
+            }) ;
         }
 
-        public async Task<ApiResponse<UserGetDto>> CreateUserAsync(UserPostDto input)
+        public List<User> FilterData(UserGetFilter filter, IQueryable<User> users)
+        {
+            if (filter.Id != null)
+            {
+                users = users.Where(u => u.Id == filter.Id);
+            }
+            if (!filter.Name.IsNullOrEmpty())
+            {
+                users = users.Where(u => u.Name.Contains(filter.Name));
+            }
+            if(!filter.SurName.IsNullOrEmpty())
+            {
+                users = users.Where(u => u.SurName.Contains(filter.SurName));
+            }
+            if(filter.Age != null)
+            {
+                users = users.Where(u => u.Age == filter.Age);
+            }
+            if(filter.FacultyId != null)
+            {
+                users = users.Where(u => u.FacultyId == filter.FacultyId);
+            }
+            if (filter.CourseIds != null && filter.CourseIds.Any())
+            {
+                users = users.Where(u => u.UsersCourses
+                             .Select(c => c.CourseId)
+                             .Any(courseId => filter.CourseIds.Contains(courseId)));
+            }
+            if(filter.LecturerIds != null && filter.LecturerIds.Any())
+            {
+                users = users.Where(u => u.UsersLecturers
+                             .Select(l => l.LecturerId)
+                             .Any(lecturerId => filter.LecturerIds.Contains(lecturerId)));
+            }
+            return users.ToList();
+
+        }
+
+        public async Task<ApiResponse<UserGetDto>> CreateUserAsync(UserPostDto input, CancellationToken cancellationToken)
         {
             var user = new User
             {
@@ -157,11 +158,11 @@ namespace UniversityApi.Service.Services
                 }
             }
 
-            await _repositories.UserRepository.CreateUserAsync(user);
-            await _repositories.UserRepository.SaveChangesAsync();
+            await _repositories.UserRepository.CreateUserAsync(user, cancellationToken);
+            await _repositories.UserRepository.SaveChangesAsync(cancellationToken);
 
 
-            var userQueryable = await _repositories.UserRepository.GetUsersAsync();
+            var userQueryable = await _repositories.UserRepository.GetUsersAsync(cancellationToken);
             var fetchedUser = await userQueryable
                                       .Include(u => u.Faculty)
                                       .Include(u => u.UsersLecturers)
@@ -212,14 +213,14 @@ namespace UniversityApi.Service.Services
             return sucessResult;
         }
 
-        public async Task<ApiResponse<string>> UpdateUserAsync(UserPutDto input)
+        public async Task<ApiResponse<string>> UpdateUserAsync(UserPutDto input, CancellationToken cancellationToken)
         {
-            var userQueryable = await _repositories.UserRepository.GetUsersAsync();
+            var userQueryable = await _repositories.UserRepository.GetUsersAsync(cancellationToken);
             var user = await userQueryable.AsQueryable()
                                       .Include(u => u.UsersCourses)
                                       .Include(u => u.UsersLecturers)
                                       .Where(u => u.Id == input.Id)
-                                      .FirstOrDefaultAsync();
+                                      .FirstOrDefaultAsync(cancellationToken);
 
 
 
@@ -229,7 +230,7 @@ namespace UniversityApi.Service.Services
             user.Age = input.Age.HasValue ? (int)input.Age : 0;
             user.FacultyId = input.FacultyId.HasValue ? input.FacultyId : null;
 
-            await _repositories.UserRepository.UpdateUserAsync(user);
+            await _repositories.UserRepository.UpdateUserAsync(user, cancellationToken);
 
 
             if (!input.CourseIds.IsNullOrEmpty())
@@ -265,27 +266,31 @@ namespace UniversityApi.Service.Services
             }
 
 
-            await _repositories.UserRepository.SaveChangesAsync();
+            await _repositories.UserRepository.SaveChangesAsync(cancellationToken);
 
             var successResult = ApiResponse<string>.SuccesResult("Course changed successfully");
             return successResult;
 
         }
 
-        public async Task<ApiResponse<string>> DeleteUserAsync(int userId)
+        public async Task<ApiResponse<string>> DeleteUserAsync(int userId, CancellationToken cancellationToken)
         {
-            var user = GetUserByIdAsync(userId);
+            var user = await _context.Users
+                .Include(u => u.Faculty)
+                .Include(u => u.UsersCourses)
+                .Include(u => u.UsersLecturers)
+                .FirstOrDefaultAsync(u => u.Id == userId);
 
-            if(user == null)
+            if (user == null)
             {
                 throw new CustomExceptions.NotFoundException("User not found on that Id");
             }
 
-            if (await _repositories.UserRepository.DeleteUserAsync(userId) &&
-                    await _repositories.UserRepository.DeleteUsersCoursesAsync(userId) &&
-                    await _repositories.UserRepository.DeleteUsersLecturers(userId))
+            if (await _repositories.UserRepository.DeleteUserAsync(userId, cancellationToken) &&
+                    await _repositories.UserRepository.DeleteUsersCoursesAsync(userId, cancellationToken) &&
+                    await _repositories.UserRepository.DeleteUsersLecturers(userId, cancellationToken))
             {
-                await _repositories.UserRepository.SaveChangesAsync();
+                await _repositories.UserRepository.SaveChangesAsync(cancellationToken);
                 var successResult = ApiResponse<string>.SuccesResult("User deleted successfully");
                 return successResult;
             }
