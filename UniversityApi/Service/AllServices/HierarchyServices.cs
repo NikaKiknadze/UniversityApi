@@ -101,8 +101,6 @@ namespace UniversityApi.Service.AllServices
             return hierarchy;
         }
 
-
-
         public List<Hierarchy> FilterData(HierarchyDto filter, IQueryable<Hierarchy> hierarchies)
         {
             if (filter.Id != null)
@@ -138,6 +136,42 @@ namespace UniversityApi.Service.AllServices
             }
 
             await _repositories.HierarchyRepository.SaveChangesAsync(cancellationToken);
+
+            var sortIndex = hierarchyObject.SortIndex + 1;
+
+            if(hierarchyObject.ParentId == null)
+            {
+                var allParents = await _repositories.HierarchyRepository.GetDataAsync(cancellationToken);
+                var parentsQueryable = await allParents.Where(h => h.ParentId == null && h.Id != hierarchyObject.Id)
+                                                 .OrderBy(h => h.SortIndex)
+                                                 .ToListAsync(cancellationToken);
+
+                foreach(var item in allParents)
+                {
+                    if(item.SortIndex >= hierarchyObject.SortIndex)
+                    {
+                        item.SortIndex = sortIndex;
+                        sortIndex++;
+                    }
+                }
+                await _repositories.HierarchyRepository.SaveChangesAsync(cancellationToken);
+            }
+            else
+            {
+                var childrenOfParentObject = await _repositories.HierarchyRepository.GetDataAsync(cancellationToken);
+                var childrenOfParentObjectQueryable = await childrenOfParentObject.Where(h => h.ParentId == hierarchyObject.ParentId && h.Id != hierarchyObject.Id)
+                                                                            .OrderBy(h => h.SortIndex) 
+                                                                            .ToListAsync(cancellationToken);
+                foreach(var item in childrenOfParentObject)
+                {
+                    if(item.SortIndex >= hierarchyObject.SortIndex)
+                    {
+                        item.SortIndex = sortIndex;
+                        sortIndex++;
+                    }
+                }
+                await _repositories.HierarchyRepository.SaveChangesAsync(cancellationToken);
+            }
 
             var successResult = ApiResponse<string>.SuccesResult("HierarchyObject changed successfully");
             return successResult;
