@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using UniversityApi.Data;
 
@@ -11,9 +12,11 @@ using UniversityApi.Data;
 namespace UniversityApi.Migrations
 {
     [DbContext(typeof(UniversistyContext))]
-    partial class UniversistyContextModelSnapshot : ModelSnapshot
+    [Migration("20231218065543_HierarchyTable")]
+    partial class HierarchyTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -86,9 +89,6 @@ namespace UniversityApi.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int?>("ParentId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SortIndex")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
