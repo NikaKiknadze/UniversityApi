@@ -4,6 +4,8 @@ using UniversityApi.Repository;
 using UniversityApi.Service.ServiceAbstracts;
 using UniversityApi.Service.Services;
 using UniversityApi.Service;
+using UniversityApi.Repository.AllRepositories;
+using UniversityApi.Service.AllServices;
 
 namespace UniversityApi
 {
@@ -19,10 +21,13 @@ namespace UniversityApi
             services.AddScoped<IFacultyRepository, FacultyRepository>();
             services.AddScoped<ILecturerRepository, LecturerRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IHierarchyRepository, HierarchyRepository>();
             services.AddScoped<ICourseServices, CourseServices>();
             services.AddScoped<IFacultyServices, FacultyServices>();
             services.AddScoped<ILecturerServices,  LecturerServices>();
             services.AddScoped<IUserServices, UserServices>();
+            services.AddScoped<IHierarchyService, HierarchyServices>();
+            
 
 
             return services;

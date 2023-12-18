@@ -18,6 +18,10 @@ namespace UniversityApi.Data
         public DbSet<UsersCoursesJoin> UsersCoursesJoin { get;  set; }
         public DbSet<UsersLecturersJoin> UsersLecturersJoin { get; set; }
         public DbSet<CoursesLecturersJoin> CoursesLecturersJoin { get; set; }
+        public DbSet<Hierarchy> Hierarchy { get; set; }
+
+
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<UsersCoursesJoin>()

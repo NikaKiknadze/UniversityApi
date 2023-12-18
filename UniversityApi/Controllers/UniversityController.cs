@@ -19,13 +19,19 @@ namespace UniversityApi.Controllers
         private readonly IFacultyServices _faultyServices;
         private readonly ILecturerServices _lecturerServices;
         private readonly IUserServices _userServices;
+        private readonly IHierarchyService _hierarchyService;
 
-        public UniversityController(IUserServices userServices, ICourseServices courseServices, ILecturerServices lecturerServices, IFacultyServices faultyServices)
+        public UniversityController(IUserServices userServices, 
+                                    ICourseServices courseServices, 
+                                    ILecturerServices lecturerServices, 
+                                    IFacultyServices faultyServices,
+                                    IHierarchyService hierarchyService)
         {
             _userServices = userServices;
             _courseServices = courseServices;
             _lecturerServices = lecturerServices;
             _faultyServices = faultyServices;
+            _hierarchyService = hierarchyService;
         }
 
         #region UserServices
@@ -147,6 +153,37 @@ namespace UniversityApi.Controllers
         public async Task<ActionResult<bool>> DeleteFacultyAsync(int facultyId, CancellationToken cancellationToken)
         {
             var result = await _faultyServices.DeleteFacultyAsync(facultyId, cancellationToken);
+            return Ok(result);
+        }
+        #endregion
+
+        #region HierarchyServices
+
+        [HttpGet("Hierarchy", Name = "GetHyerarchyObjects")]
+        public async Task<ActionResult<GetDtosWithCount<HierarchyDto>>> GetHierarchyObjectsAsync([FromQuery] HierarchyDto filter, CancellationToken cancellationToken)
+        {
+            var result = await _hierarchyService.GetHierarchyObjectsAsync(filter, cancellationToken);
+            return Ok(result);
+        }
+
+        [HttpPost("Hierarchy", Name = "PostHierarchyObject")]
+        public async Task<ActionResult<HierarchyDto>> PostHierarchyObjectAsync(HierarchyDto input, CancellationToken cancellationToken)
+        {
+            var result = await _hierarchyService.CreateHierarchyObjectAsync(input, cancellationToken);
+            return Ok(result);
+        }
+
+        [HttpPut("Hierarchy", Name = "PutHierarchyObject")]
+        public async Task<ActionResult<bool>> PutHierarchyAsync(HierarchyDto input, CancellationToken cancellationToken)
+        {
+            var result = await _hierarchyService.UpdateHierarchyObjectAsync(input, cancellationToken);
+            return Ok(result);
+        }
+
+        [HttpDelete("Hierarchy/{hierarchyId}", Name = "DeleteHierarchyObject")]
+        public async Task<ActionResult<bool>> DeleteHierarchyAsync(int hierarchyId, CancellationToken cancellationToken)
+        {
+            var result = await _hierarchyService.DeleteHierarchyObjectAsync(hierarchyId, cancellationToken);
             return Ok(result);
         }
         #endregion

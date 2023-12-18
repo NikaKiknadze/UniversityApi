@@ -8,5 +8,6 @@ namespace UniversityApi.Repository
         IFacultyRepository FacultyRepository { get; }
         ILecturerRepository LecturerRepository { get; }
         IUserRepository UserRepository { get; }
+        IHierarchyRepository HierarchyRepository { get; }
     }
 }
