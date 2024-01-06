@@ -11,6 +11,7 @@ namespace UniversityApi.Service.ServiceAbstracts
         Task<ApiResponse<string>> UpdateUserAsync(UserPutDto input, CancellationToken cancellationToken);
         Task<ApiResponse<string>> DeleteUserAsync(int userId, CancellationToken cancellationToken);
         List<User> FilterData(UserGetFilter filter, IQueryable<User> users);
+        Task<ApiResponse<GetDtosWithCount<IEnumerable<TodosDto>>>> GetTodosInfo(TodosDto filter, CancellationToken cancellationToken);
 
     }
 }
