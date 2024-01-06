@@ -71,29 +71,25 @@ namespace UniversityApi.Controllers
         [HttpGet("Courses", Name = "GetCourses")]
         public async Task<ActionResult<GetDtosWithCount<CourseGetDto>>> GetCoursesAsync([FromQuery]CourseGetFilter filter, CancellationToken cancellationToken)
         {
-            var result = await _courseServices.GetCoursesAsync(filter, cancellationToken);
-            return Ok(result);
+            return Ok(await _courseServices.GetCoursesAsync(filter, cancellationToken));
         }
 
         [HttpPost("Courses", Name = "CreateCourse")]
         public async Task<ActionResult<CourseGetDto>> CreateCourseAsync(CoursePostDto input, CancellationToken cancellationToken)
         {
-            var result = await _courseServices.CreateCourseAsync(input, cancellationToken);
-            return Ok(result);
+            return Ok(await _courseServices.CreateCourseAsync(input, cancellationToken));
         }
 
         [HttpPut("Courses", Name = "PutCourse")]
         public async Task<ActionResult<bool>> PutCourseAsync(CoursePutDto input, CancellationToken cancellationToken)
         {
-            var result = await _courseServices.UpdateCourseAsync(input, cancellationToken);
-            return Ok(result);
+            return Ok(await _courseServices.UpdateCourseAsync(input, cancellationToken));
         }
 
         [HttpDelete("Courses/{courseId}", Name = "DeleteCourse")]
         public async Task<ActionResult<bool>> DeleteCourse(int courseId, CancellationToken cancellationToken)
         {
-            var result = await _courseServices.DeleteCourse(courseId, cancellationToken);
-            return Ok(result);
+            return Ok(await _courseServices.DeleteCourse(courseId, cancellationToken));
         }
 
         #endregion
@@ -102,29 +98,25 @@ namespace UniversityApi.Controllers
         [HttpGet("Lecturers", Name = "GetLecturers")]
         public async Task<ActionResult> GetLecturersAsync([FromQuery]LecturerGetFilter filter, CancellationToken cancellationToken)
         {
-            var result = await _lecturerServices.GetLecturersAsync(filter, cancellationToken);
-            return Ok(result);
+            return Ok(await _lecturerServices.GetLecturersAsync(filter, cancellationToken));
         }
 
         [HttpPost("Lecturers", Name = "CreateLecturer")]
         public async Task<ActionResult<LecturerGetDto>> CreateLecturerAsync(LecturerPostDto input, CancellationToken cancellationToken)
         {
-            var result = await _lecturerServices.CreateLecturerAsync(input, cancellationToken);
-            return Ok(result);
+            return Ok(await _lecturerServices.CreateLecturerAsync(input, cancellationToken));
         }
 
         [HttpPut("Lecturers", Name = "PutLecturer")]
         public async Task<ActionResult<bool>> PutLecturerAsync(LecturerPutDto input, CancellationToken cancellationToken)
         {
-            var result = await _lecturerServices.UpdateLecturerAsync(input, cancellationToken);
-            return Ok(result);
+            return Ok(await _lecturerServices.UpdateLecturerAsync(input, cancellationToken));
         }
 
         [HttpDelete("Lecturers/{lecturerId}", Name = "DeleteLecturer")]
         public async Task<ActionResult<bool>> DeleteLecturerAsync(int lecturerId, CancellationToken cancellationToken)
         {
-            var result = await _lecturerServices.DeleteLecturerAsync(lecturerId, cancellationToken);
-            return Ok(result);
+            return Ok(await _lecturerServices.DeleteLecturerAsync(lecturerId, cancellationToken));
         }
         #endregion
 
@@ -133,29 +125,25 @@ namespace UniversityApi.Controllers
         [HttpGet("Faculties", Name = "GetFaculties")]
         public async Task<ActionResult<GetDtosWithCount<FacultyGetDto>>> GetFacultiesAsync([FromQuery]FacultyGetFilter filter, CancellationToken cancellationToken)
         {
-            var result = await _faultyServices.GetFacultiesAsync(filter, cancellationToken);
-            return Ok(result);
+            return Ok(await _faultyServices.GetFacultiesAsync(filter, cancellationToken));
         }
 
         [HttpPost("Faculties", Name = "PostFaculties")]
         public async Task<ActionResult<FacultyGetDto>> PostFacultyAsync(FacultyPostDto input, CancellationToken cancellationToken)
         {
-            var result = await _faultyServices.CreateFacultyAsync(input, cancellationToken);
-            return Ok(result);
+            return Ok(await _faultyServices.CreateFacultyAsync(input, cancellationToken));
         }
 
         [HttpPut("Faculties", Name = "PutFaculty")]
         public async Task<ActionResult<bool>> PutFacultyAsync(FacultyPutDto input, CancellationToken cancellationToken)
         {
-            var result = await _faultyServices.UpdateFacultyAsync(input, cancellationToken);
-            return Ok(result);
+            return Ok(await _faultyServices.UpdateFacultyAsync(input, cancellationToken));
         }
 
         [HttpDelete("Faculties/{facultyId}", Name = "DeleteFaculty")]
         public async Task<ActionResult<bool>> DeleteFacultyAsync(int facultyId, CancellationToken cancellationToken)
         {
-            var result = await _faultyServices.DeleteFacultyAsync(facultyId, cancellationToken);
-            return Ok(result);
+            return Ok(await _faultyServices.DeleteFacultyAsync(facultyId, cancellationToken));
         }
         #endregion
 
@@ -164,29 +152,25 @@ namespace UniversityApi.Controllers
         [HttpGet("Hierarchy", Name = "GetHyerarchyObjects")]
         public async Task<ActionResult<GetDtosWithCount<HierarchyDto>>> GetHierarchyObjectsAsync([FromQuery] HierarchyDto filter, CancellationToken cancellationToken)
         {
-            var result = await _hierarchyService.GetHierarchyObjectsAsync(filter, cancellationToken);
-            return Ok(result);
+            return Ok(await _hierarchyService.GetHierarchyObjectsAsync(filter, cancellationToken));
         }
 
         [HttpPost("Hierarchy", Name = "PostHierarchyObject")]
         public async Task<ActionResult<HierarchyDto>> PostHierarchyObjectAsync(HierarchyDto input, CancellationToken cancellationToken)
         {
-            var result = await _hierarchyService.CreateHierarchyObjectAsync(input, cancellationToken);
-            return Ok(result);
+            return Ok(await _hierarchyService.CreateHierarchyObjectAsync(input, cancellationToken));
         }
 
         [HttpPut("Hierarchy", Name = "PutHierarchyObject")]
         public async Task<ActionResult<bool>> PutHierarchyAsync(HierarchyDto input, CancellationToken cancellationToken)
         {
-            var result = await _hierarchyService.UpdateHierarchyObjectAsync(input, cancellationToken);
-            return Ok(result);
+            return Ok(await _hierarchyService.UpdateHierarchyObjectAsync(input, cancellationToken));
         }
 
         [HttpDelete("Hierarchy/{hierarchyId}", Name = "DeleteHierarchyObject")]
         public async Task<ActionResult<bool>> DeleteHierarchyAsync(int hierarchyId, CancellationToken cancellationToken)
         {
-            var result = await _hierarchyService.DeleteHierarchyObjectAsync(hierarchyId, cancellationToken);
-            return Ok(result);
+            return Ok(await _hierarchyService.DeleteHierarchyObjectAsync(hierarchyId, cancellationToken));
         }
         #endregion
 
