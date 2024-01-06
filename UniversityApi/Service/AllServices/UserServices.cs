@@ -17,11 +17,13 @@ namespace UniversityApi.Service.Services
     {
         private readonly UniversistyContext _context;
         private readonly IRepositories _repositories;
+        private readonly IConfiguration _configuration;
 
-        public UserServices(IRepositories userRepository, UniversistyContext context)
+        public UserServices(IRepositories userRepository, UniversistyContext context, IConfiguration configuration)
         {
             _context = context;
             _repositories = userRepository;
+            _configuration = configuration;
         }
         public async Task<ApiResponse<GetDtosWithCount<List<UserGetDto>>>>GetUsersAsync(UserGetFilter filter, CancellationToken cancellationToken)
         {
@@ -298,6 +300,31 @@ namespace UniversityApi.Service.Services
             {
                 throw new Exception();
             }
+        }
+
+        public async Task<ApiResponse<GetDtosWithCount<IEnumerable<TodosDto>>>> GetTodosInfo(TodosDto filter, CancellationToken cancellationToken)
+        {
+            HttpClient httpClient = new();
+
+            string apiUrl = string.Format(_configuration["ApiUrl"], "todos");
+            var response = await httpClient.GetAsync(apiUrl, cancellationToken);
+            var data = response.Content.ReadFromJsonAsync<IEnumerable<TodosDto>>().Result;
+
+            if (filter.UserId != null)
+                data = data.Where(d => d.UserId == filter.UserId);
+            if (filter.TaskId != null)
+                data = data.Where(d => d.TaskId == filter.TaskId);
+            if (filter.Status.HasValue)
+                data = data.Where(d => d.Status == filter.Status);
+            if (!filter.Title.IsNullOrEmpty())
+                data = data.Where(d => d.Title.Contains(filter.Title));
+
+
+            return ApiResponse<GetDtosWithCount<IEnumerable<TodosDto>>>.SuccesResult(new GetDtosWithCount<IEnumerable<TodosDto>>
+            {
+                Data = data,
+                Count = data.Count()
+            });
         }
     }
 

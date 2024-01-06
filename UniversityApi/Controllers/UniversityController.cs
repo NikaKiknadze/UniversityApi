@@ -38,30 +38,32 @@ namespace UniversityApi.Controllers
         [HttpGet("Users", Name = "GetUsers")]
         public async Task<ActionResult<GetDtosWithCount<UserGetDto>>> GetUsersAsync([FromQuery] UserGetFilter filter, CancellationToken cancellationToken)
         {
-            var result = await _userServices.GetUsersAsync(filter, cancellationToken);
-            return Ok(result);
+            return Ok(await _userServices.GetUsersAsync(filter, cancellationToken));
 
         }
 
         [HttpPost("Users", Name = "PostUser")]
         public async Task<ActionResult<UserGetDto>> PostUsesrAsync(UserPostDto input, CancellationToken cancellationToken)
         {
-            var result = await _userServices.CreateUserAsync(input, cancellationToken);
-            return Ok(result);
+            return Ok(await _userServices.CreateUserAsync(input, cancellationToken));
         }
 
         [HttpPut("Users", Name = "PutUser")]
         public async Task<ActionResult<bool>> PutUserAsync(UserPutDto input, CancellationToken cancellationToken)
         {
-            var result = await _userServices.UpdateUserAsync(input, cancellationToken);
-            return Ok(result);
+            return Ok(await _userServices.UpdateUserAsync(input, cancellationToken));
         }
 
         [HttpDelete("Users/{userId}", Name = "DeleteUser")]
         public async Task<ActionResult<bool>> DeleteUserAsync(int userId, CancellationToken cancellationToken)
         {
-            var result = await _userServices.DeleteUserAsync(userId, cancellationToken);
-            return Ok(result);
+            return Ok(await _userServices.DeleteUserAsync(userId, cancellationToken));
+        }
+
+        [HttpGet("Todos", Name = "GetTodosInfo")]
+        public async Task<ActionResult<GetDtosWithCount<IEnumerable<TodosDto>>>> GetTodosInfo([FromQuery]TodosDto filter, CancellationToken cancellationToken)
+        {
+            return Ok(await _userServices.GetTodosInfo(filter, cancellationToken));
         }
         #endregion
 
