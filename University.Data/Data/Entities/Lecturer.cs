@@ -9,13 +9,12 @@ namespace University.Data.Data.Entities
         [Key]
         public int Id { get; set; }
         [MaxLength(20)]
-        public string Name { get; set; }
+        public required string Name { get; set; }
         [MaxLength(20)]
-        public string SurName { get; set; }
+        public required string SurName { get; set; }
         public int Age { get; set; }
-
-        public virtual ICollection<UsersLecturersJoin>? UsersLecturers { get; set; }
-        public virtual ICollection<CoursesLecturersJoin>? CoursesLecturers { get; set; }
+        public virtual ICollection<UsersLecturersJoin> UsersLecturers { get; set; } = new HashSet<UsersLecturersJoin>();
+        public virtual ICollection<CoursesLecturersJoin> CoursesLecturers { get; set; } = new HashSet<CoursesLecturersJoin>();
 
     }
 }

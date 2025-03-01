@@ -5,13 +5,14 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using University.Data;
 using University.Data.Data;
 
 #nullable disable
 
 namespace University.Api.Migrations
 {
-    [DbContext(typeof(UniversistyContext))]
+    [DbContext(typeof(UniversityContext))]
     [Migration("20231218071411_SortIndex")]
     partial class SortIndex
     {

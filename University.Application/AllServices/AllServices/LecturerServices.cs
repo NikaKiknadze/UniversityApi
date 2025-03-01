@@ -1,9 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using University.Application.AllServices.ServiceAbstracts;
+using University.Data;
+using University.Data.ContextMethodsDirectory;
 using University.Data.Data;
 using University.Data.Data.Entities;
-using University.Data.Data.Repository;
 using University.Domain.CustomExceptions;
 using University.Domain.CustomResponses;
 using University.Domain.Models;
@@ -12,19 +13,19 @@ namespace University.Application.AllServices.AllServices
 {
     public class LecturerServices : ILecturerServices
     {
-        private readonly UniversistyContext _context;
-        private readonly IRepositories _repositories;
+        private readonly UniversityContext _context;
+        private readonly ContextMethods _contextMethods;
 
-        public LecturerServices(IRepositories repositories, UniversistyContext context)
+        public LecturerServices(ContextMethods contextMethods, UniversityContext context)
         {
             _context = context;
-            _repositories = repositories;
+            _contextMethods = contextMethods;
         }
 
 
         public async Task<ApiResponse<GetDtoWithCount<List<LecturerGetDto>>>> GetLecturersAsync(LecturerGetFilter filter, CancellationToken cancellationToken)
         {
-            var lecturers = await _repositories.LecturerRepository.GetLecturersWithRelatedDataAsync(cancellationToken);
+            var lecturers = await _contextMethods.LecturerRepository.GetLecturersWithRelatedDataAsync(cancellationToken);
 
             if (lecturers == null)
             {
@@ -152,11 +153,11 @@ namespace University.Application.AllServices.AllServices
                 throw new Exception();
             }
 
-            await _repositories.LecturerRepository.CreateLecturerAsync(lecturer, cancellationToken);
-            await _repositories.LecturerRepository.SaveChangesAsync(cancellationToken);
+            await _contextMethods.LecturerRepository.CreateLecturerAsync(lecturer, cancellationToken);
+            await _contextMethods.LecturerRepository.SaveChangesAsync(cancellationToken);
 
 
-            var lecturerQueryable = await _repositories.LecturerRepository.GetLecturersAsync(cancellationToken);
+            var lecturerQueryable = await _contextMethods.LecturerRepository.GetLecturersAsync(cancellationToken);
             var fetchedLecturer = await lecturerQueryable
                                                .Include(l => l.UsersLecturers)
                                                     .ThenInclude(ul => ul.User)
@@ -197,7 +198,7 @@ namespace University.Application.AllServices.AllServices
 
         public async Task<ApiResponse<string>> UpdateLecturerAsync(LecturerPutDto input, CancellationToken cancellationToken)
         {
-            var lecturerQueryable = await _repositories.LecturerRepository.GetLecturersAsync(cancellationToken);
+            var lecturerQueryable = await _contextMethods.LecturerRepository.GetLecturersAsync(cancellationToken);
             var lecturer = await lecturerQueryable.AsQueryable()
                                               .Include(l => l.UsersLecturers)
                                               .Include(l => l.CoursesLecturers)
@@ -209,7 +210,7 @@ namespace University.Application.AllServices.AllServices
             lecturer.SurName = input.Surname;
             lecturer.Age = input.Id.HasValue ? input.Age.Value : 0;
 
-            if (await _repositories.LecturerRepository.UpdateLecturerAsync(lecturer, cancellationToken))
+            if (await _contextMethods.LecturerRepository.UpdateLecturerAsync(lecturer, cancellationToken))
             {
                 if (!input.UserIds.IsNullOrEmpty())
                 {
@@ -242,7 +243,7 @@ namespace University.Application.AllServices.AllServices
                     throw new  NotFoundException("Lecturer not found");
                 }
 
-                await _repositories.LecturerRepository.SaveChangesAsync(cancellationToken);
+                await _contextMethods.LecturerRepository.SaveChangesAsync(cancellationToken);
                 return ApiResponse<string>.SuccesResult("Lecturer changed successfully");
             }
             else
@@ -265,11 +266,11 @@ namespace University.Application.AllServices.AllServices
                 throw new  NotFoundException("Lecturer not fonund on that Id");
             }
 
-            if (await _repositories.LecturerRepository.DeleteLecturerAsync(lecturerId, cancellationToken) &&
-                   await _repositories.LecturerRepository.DeleteUsersLecturersAsync(lecturerId, cancellationToken) &&
-                   await _repositories.LecturerRepository.DeleteCoursesLecturersAsync(lecturerId, cancellationToken))
+            if (await _contextMethods.LecturerRepository.DeleteLecturerAsync(lecturerId, cancellationToken) &&
+                   await _contextMethods.LecturerRepository.DeleteUsersLecturersAsync(lecturerId, cancellationToken) &&
+                   await _contextMethods.LecturerRepository.DeleteCoursesLecturersAsync(lecturerId, cancellationToken))
             {
-                await _repositories.LecturerRepository.SaveChangesAsync(cancellationToken);
+                await _contextMethods.LecturerRepository.SaveChangesAsync(cancellationToken);
                 return ApiResponse<string>.SuccesResult("Lecturer deleted successfully");
             }
             else

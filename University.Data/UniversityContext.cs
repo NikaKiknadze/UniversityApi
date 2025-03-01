@@ -1,14 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using University.Data.Data.Entities;
 
-namespace University.Data.Data
+namespace University.Data
 {
-    public class UniversistyContext : DbContext
+    public class UniversityContext : DbContext
     {
-        public UniversistyContext(DbContextOptions options) : base(options)
-        {
-
-        }
         public DbSet<User> Users { get; set; }
         public DbSet<Lecturer> Lecturers { get; set; }
         public DbSet<Course> Courses { get; set; }
@@ -16,7 +12,6 @@ namespace University.Data.Data
         public DbSet<UsersCoursesJoin> UsersCoursesJoin { get;  set; }
         public DbSet<UsersLecturersJoin> UsersLecturersJoin { get; set; }
         public DbSet<CoursesLecturersJoin> CoursesLecturersJoin { get; set; }
-        public DbSet<Hierarchy> Hierarchy { get; set; }
 
 
 

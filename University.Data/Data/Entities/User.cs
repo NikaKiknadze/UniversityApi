@@ -9,15 +9,15 @@ namespace University.Data.Data.Entities
         [Key]
         public int Id { get; set; }
         [MaxLength(20)]
-        public string Name { get; set; }
+        public required string Name { get; set; }
         [MaxLength(20)]
-        public string SurName { get; set; }
+        public required string SurName { get; set; }
         public int Age { get; set; }
         [ForeignKey("Faculty")]
         public int? FacultyId { get; set; }
 
-        public virtual ICollection<UsersLecturersJoin>? UsersLecturers { get; set; }
-        public virtual ICollection<UsersCoursesJoin>? UsersCourses { get; set; }
-        public virtual Faculty? Faculty { get; set; }
+        public virtual ICollection<UsersLecturersJoin> UsersLecturers { get; set; } = new HashSet<UsersLecturersJoin>();
+        public virtual ICollection<UsersCoursesJoin> UsersCourses { get; set; } = new HashSet<UsersCoursesJoin>();
+        public virtual Faculty? Faculty { get; init; }
     }
 }

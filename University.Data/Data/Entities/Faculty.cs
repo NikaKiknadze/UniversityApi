@@ -9,9 +9,8 @@ namespace University.Data.Data.Entities
         [Key]
         public int Id { get; set; }
         [MaxLength(50)]
-        public string FacultyName { get; set; }
-
-        public virtual ICollection<User> Users { get; set; }
-        public virtual ICollection<Course> Courses { get; set; }
+        public required string FacultyName { get; set; }
+        public virtual ICollection<User> Users { get; set; } = new HashSet<User>();
+        public virtual ICollection<Course?> Courses { get; set; } = new HashSet<Course?>();
     }
 }

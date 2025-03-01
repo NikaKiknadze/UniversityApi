@@ -1,9 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using University.Application.AllServices.ServiceAbstracts;
+using University.Data.ContextMethodsDirectory;
 using University.Data.Data;
 using University.Data.Data.Entities;
-using University.Data.Data.Repository;
+using University.Data.Data.EntityGenericMethods;
 using University.Domain.CustomExceptions;
 using University.Domain.CustomResponses;
 using University.Domain.Models;
@@ -12,20 +13,17 @@ namespace University.Application.AllServices.AllServices
 {
     public class FacultyServices : IFacultyServices
     {
-        public readonly UniversistyContext _context;
-        public readonly IRepositories _repositories;
-
-        public FacultyServices(UniversistyContext context, IRepositories repositories)
+        public readonly IEntityGenericMethods<Faculty> _facultyRepository;
+        public FacultyServices(IEntityGenericMethods<Faculty> facultyRepository)
         {
-            _context = context;
-            _repositories = repositories;
+            _facultyRepository = facultyRepository;
         }
 
         
 
         public async Task<ApiResponse<GetDtoWithCount<List<FacultyGetDto>>>> GetFacultiesAsync(FacultyGetFilter filter,CancellationToken cancellationToken)
         {
-            var faculties = await _repositories.FacultyRepository.GetFacultiesWithRelatedDataAsync(cancellationToken);
+            var faculties = await _facultyRepository.All.GetFacultiesWithRelatedDataAsync(cancellationToken);
 
             if(faculties == null)
             {
@@ -105,7 +103,7 @@ namespace University.Application.AllServices.AllServices
             };
 
 
-            await _repositories.FacultyRepository.CreateFacultyAsync(faculty, cancellationToken);
+            await _facultyRepository.All.CreateFacultyAsync(faculty, cancellationToken);
 
 
 
@@ -115,7 +113,7 @@ namespace University.Application.AllServices.AllServices
 
                 foreach (var userId in input.UserIds)
                 {
-                    var userQueryable = await _repositories.UserRepository.GetUsersAsync(cancellationToken);
+                    var userQueryable = await _facultyRepository.All.GetUsersAsync(cancellationToken);
                     var user = await userQueryable.AsQueryable()
                                               .Include(u => u.UsersCourses)
                                               .Include(u => u.UsersLecturers)
@@ -135,11 +133,11 @@ namespace University.Application.AllServices.AllServices
 
             if (!input.CourseIds.IsNullOrEmpty())
             {
-                faculty.Courses = new List<Course>();
+                faculty.Courses = new List<Course?>();
 
                 foreach (var courseId in input.CourseIds)
                 {
-                    var course = await _repositories.CourseRepository.GetCourseByIdAsync(courseId, cancellationToken);
+                    var course = await _facultyRepository.All.GetCourseByIdAsync(courseId, cancellationToken);
 
                     if (course != null)
                     {
@@ -154,10 +152,10 @@ namespace University.Application.AllServices.AllServices
                 throw new Exception();
             }
 
-            await _repositories.UserRepository.SaveChangesAsync(cancellationToken);
-            await _repositories.FacultyRepository.SaveChangesAsync(cancellationToken);
+            await ContextMethods.UserRepository.SaveChangesAsync(cancellationToken);
+            await ContextMethods.FacultyRepository.SaveChangesAsync(cancellationToken);
 
-            var facultyQueryable = await _repositories.FacultyRepository.GetFacultiesAsync(cancellationToken);
+            var facultyQueryable = await ContextMethods.FacultyRepository.GetFacultiesAsync(cancellationToken);
             var fetchedFaculty = await facultyQueryable
                                             .Include(f => f.Users)
                                                 .ThenInclude(u => u.UsersCourses)
@@ -200,7 +198,7 @@ namespace University.Application.AllServices.AllServices
 
         public async Task<ApiResponse<string>> UpdateFacultyAsync(FacultyPutDto input, CancellationToken cancellationToken)
         {
-            var facultyQueryable = await _repositories.FacultyRepository.GetFacultiesAsync(cancellationToken);
+            var facultyQueryable = await ContextMethods.FacultyRepository.GetFacultiesAsync(cancellationToken);
             var faculty = await facultyQueryable.AsQueryable()
                 .Include(f => f.Users)
                 .Include(f => f.Courses)
@@ -212,7 +210,7 @@ namespace University.Application.AllServices.AllServices
             faculty.Id = input.Id.HasValue ? input.Id.Value : 0;
             faculty.FacultyName = input.FacultyName;
 
-            if (await _repositories.FacultyRepository.UpdateFacultyAsync(faculty, cancellationToken))
+            if (await ContextMethods.FacultyRepository.UpdateFacultyAsync(faculty, cancellationToken))
             {
                 if (faculty == null)
                 {
@@ -224,7 +222,7 @@ namespace University.Application.AllServices.AllServices
                     faculty.Users.Clear();
                     foreach (var userId in input.UserIds)
                     {
-                        var userQueryable = await _repositories.UserRepository.GetUsersAsync(cancellationToken);
+                        var userQueryable = await ContextMethods.UserRepository.GetUsersAsync(cancellationToken);
                         var user = await userQueryable.AsQueryable()
                                                   .Include(u => u.UsersCourses)
                                                   .Include(u => u.UsersLecturers)
@@ -244,7 +242,7 @@ namespace University.Application.AllServices.AllServices
                     faculty.Courses.Clear();
                     foreach (var courseId in input.CourseIds)
                     {
-                        var course = await _repositories.CourseRepository.GetCourseByIdAsync(courseId, cancellationToken);
+                        var course = await ContextMethods.CourseRepository.GetCourseByIdAsync(courseId, cancellationToken);
                         faculty.Courses.Add(course);
                     }
                 }
@@ -253,7 +251,7 @@ namespace University.Application.AllServices.AllServices
                     throw new Exception();
                 }
 
-                await _repositories.FacultyRepository.SaveChangesAsync(cancellationToken);
+                await ContextMethods.FacultyRepository.SaveChangesAsync(cancellationToken);
                 var successResult = ApiResponse<string>.SuccesResult("Faculty updated successfully");
                 return successResult;
             }
@@ -266,7 +264,7 @@ namespace University.Application.AllServices.AllServices
 
         public async Task<ApiResponse<string>> DeleteFacultyAsync(int facultyId, CancellationToken cancellationToken)
         {
-            var faculty = await _context.Faculty
+            var faculty = await Context.Faculty
                                  .Include(f => f.Users)
                                  .Include(f => f.Courses)
                                  .FirstOrDefaultAsync(f => f.Id == facultyId, cancellationToken);
@@ -275,9 +273,9 @@ namespace University.Application.AllServices.AllServices
                 throw new  NotFoundException("Faculty not found on that Id");
             }
 
-            if (await _repositories.FacultyRepository.DeleteFacultyAsync(facultyId, cancellationToken))
+            if (await ContextMethods.FacultyRepository.DeleteFacultyAsync(facultyId, cancellationToken))
             {
-                await _repositories.FacultyRepository.SaveChangesAsync(cancellationToken);
+                await ContextMethods.FacultyRepository.SaveChangesAsync(cancellationToken);
                 var successResult = ApiResponse<string>.SuccesResult("Faculty deleted successfully");
                 return successResult;
             }

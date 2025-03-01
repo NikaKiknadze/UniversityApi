@@ -7,7 +7,7 @@ namespace University.Data.Data.Entities
     {
         public int CourseId { get; set; }
         public int LectureId { get; set; }
-        public virtual Course Course { get; set; }
-        public virtual Lecturer Lecturer { get; set; }
+        public virtual Course? Course { get; set; }
+        public virtual Lecturer? Lecturer { get; set; }
     }
 }

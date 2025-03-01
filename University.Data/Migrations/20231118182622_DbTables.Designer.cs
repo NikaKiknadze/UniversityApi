@@ -5,15 +5,16 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using University.Data;
 using University.Data.Data;
 
 #nullable disable
 
 namespace University.Api.Migrations
 {
-    [DbContext(typeof(UniversistyContext))]
-    [Migration("20231118195150_UpdateUserTable")]
-    partial class UpdateUserTable
+    [DbContext(typeof(UniversityContext))]
+    [Migration("20231118182622_DbTables")]
+    partial class DbTables
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

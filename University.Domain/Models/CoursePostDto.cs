@@ -2,7 +2,7 @@
 {
     public class CoursePostDto
     {
-        public string? CourseName { get; set; }
+        public required string CourseName { get; set; }
 
         public int? FacultyId { get; set; }
 

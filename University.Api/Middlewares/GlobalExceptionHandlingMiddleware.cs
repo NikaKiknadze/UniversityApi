@@ -1,20 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System.Net;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using University.Domain.CustomExceptions;
 using University.Domain.CustomResponses;
 
 namespace University.Api.Middlewares
 {
-    public class GlobalExceptionHandlingMiddleware : IMiddleware
+    public class GlobalExceptionHandlingMiddleware(ILogger<GlobalExceptionHandlingMiddleware> logger) : IMiddleware
     {
-        private readonly ILogger<GlobalExceptionHandlingMiddleware> _logger;
-        public GlobalExceptionHandlingMiddleware(ILogger<GlobalExceptionHandlingMiddleware> logger) =>
-            _logger = logger;
-
-
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
             try
@@ -46,7 +38,7 @@ namespace University.Api.Middlewares
 
         private async Task HandleException(HttpContext context, Exception ex, int statusCode, string title)
         {
-            _logger.LogError(ex, ex.Message);
+            logger.LogError(ex, ex.Message);
 
             context.Response.StatusCode = statusCode;
 

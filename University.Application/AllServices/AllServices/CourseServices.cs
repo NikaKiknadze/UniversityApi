@@ -1,9 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using University.Application.AllServices.ServiceAbstracts;
+using University.Data.ContextMethodsDirectory;
 using University.Data.Data;
 using University.Data.Data.Entities;
-using University.Data.Data.Repository;
+using University.Data.Data.EntityGenericMethods;
 using University.Domain.CustomExceptions;
 using University.Domain.CustomResponses;
 using University.Domain.Models;
@@ -12,18 +13,16 @@ namespace University.Application.AllServices.AllServices
 {
     public class CourseServices : ICourseServices
     {
-        private readonly UniversistyContext _context;
-        private readonly IRepositories _repositories;
+        private readonly IUniversityContext _universityContext;
 
-        public CourseServices(UniversistyContext context, IRepositories repository)
+        public CourseServices(IUniversityContext universityContext)
         {
-            _context = context;
-            _repositories = repository;
+            _universityContext = universityContext;
         }
 
         public async Task<ApiResponse<GetDtoWithCount<List<CourseGetDto>>>> GetCoursesAsync(CourseGetFilter filter, CancellationToken cancellationToken)
         {
-            var courses = await _repositories.CourseRepository.GetCoursesWithRelatedDataAsync(cancellationToken);
+            var courses = await _universityContext.Courses.All.GetCoursesWithRelatedDataAsync(cancellationToken);
 
             if (courses == null || !courses.Any())
             {
@@ -120,13 +119,13 @@ namespace University.Application.AllServices.AllServices
                 throw new BadRequestException("Course Name is null");
             }
 
-            if (!input.UserIds.IsNullOrEmpty())
+            if (input.UserIds is {Count: > 0})
             {
                 course.UsersCourses = new List<UsersCoursesJoin>();
 
                 foreach (var userId in input.UserIds)
                 {
-                    course.UsersCourses.Add(new UsersCoursesJoin()
+                    course.UsersCourses.Add(new UsersCoursesJoin
                     {
                         UserId = userId,
                         CourseId = course.Id
@@ -134,13 +133,13 @@ namespace University.Application.AllServices.AllServices
                 }
             }
 
-            if (!input.LecturerIds.IsNullOrEmpty())
+            if (input.LecturerIds  is {Count: > 0})
             {
                 course.CoursesLecturers = new List<CoursesLecturersJoin>();
 
                 foreach (var lecturerId in input.LecturerIds)
                 {
-                    course.CoursesLecturers.Add(new CoursesLecturersJoin()
+                    course.CoursesLecturers.Add(new CoursesLecturersJoin
                     {
                         LectureId = lecturerId,
                         CourseId = course.Id
@@ -148,10 +147,10 @@ namespace University.Application.AllServices.AllServices
                 }
             }
 
-            await _repositories.CourseRepository.CreateCourseAsync(course, cancellationToken);
-            await _repositories.CourseRepository.SaveChangesAsync(cancellationToken);
+            await _universityContext.Courses.AddAsync(course, cancellationToken);
+            await _universityContext.CompleteAsync(cancellationToken);
 
-            var courseQueryable = await _repositories.CourseRepository.GetCoursesAsync(cancellationToken);
+            var courseQueryable = await _universityContext.Courses.GetCoursesAsync(cancellationToken);
             var fetchedCourse = await courseQueryable
                                             .Include(c => c.Faculty)
                                             .Include(c => c.UsersCourses)
@@ -203,7 +202,7 @@ namespace University.Application.AllServices.AllServices
 
         public async Task<ApiResponse<string>> UpdateCourseAsync(CoursePutDto input, CancellationToken cancellationToken)
         {
-            var courseQueryable = await _repositories.CourseRepository.GetCoursesAsync(cancellationToken);
+            var courseQueryable = await _universityContext.Courses.GetCoursesAsync(cancellationToken);
             var course = await courseQueryable.AsQueryable()
                                       .Include(c => c.UsersCourses)
                                             .ThenInclude(uc => uc.User)
@@ -221,7 +220,7 @@ namespace University.Application.AllServices.AllServices
             course.FacultyId = input.FacultyId.HasValue ? input.FacultyId : null;
 
 
-            await _repositories.CourseRepository.UpdateCourseAsync(course, cancellationToken);
+            await _contextMethods.CourseRepository.UpdateCourseAsync(course, cancellationToken);
 
 
             if (!input.UserIds.IsNullOrEmpty())
@@ -255,7 +254,7 @@ namespace University.Application.AllServices.AllServices
                 throw new  NoContentException("Course not found");
             }
 
-            await _repositories.CourseRepository.SaveChangesAsync(cancellationToken);
+            await _contextMethods.CourseRepository.SaveChangesAsync(cancellationToken);
             var successResponse = ApiResponse<string>.SuccesResult("Course changed successfully");
             return successResponse;
 
@@ -263,7 +262,7 @@ namespace University.Application.AllServices.AllServices
 
         public async Task<ApiResponse<string>> DeleteCourse(int courseId, CancellationToken cancellationToken)
         {
-            var course = await _context.Courses
+            var course = await _universityContext.Courses
                                  .Include(uc => uc.UsersCourses)
                                         .ThenInclude(u => u.User)
                                  .Include(cl => cl.CoursesLecturers)
@@ -274,11 +273,11 @@ namespace University.Application.AllServices.AllServices
                 throw new  NotFoundException("Course not found on that Id");
             }
 
-            if (await _repositories.CourseRepository.DeleteCourseAsync(courseId, cancellationToken) &&
-                       await _repositories.CourseRepository.DeleteUsersCoursesAsync(courseId, cancellationToken) &&
-                       await _repositories.CourseRepository.DeleteCourseLecturersAsync(courseId, cancellationToken))
+            if (await _contextMethods.CourseRepository.DeleteCourseAsync(courseId, cancellationToken) &&
+                       await _contextMethods.CourseRepository.DeleteUsersCoursesAsync(courseId, cancellationToken) &&
+                       await _contextMethods.CourseRepository.DeleteCourseLecturersAsync(courseId, cancellationToken))
             {
-                await _repositories.CourseRepository.SaveChangesAsync(cancellationToken);
+                await _contextMethods.CourseRepository.SaveChangesAsync(cancellationToken);
                 var succesResult = ApiResponse<string>.SuccesResult("Course deleted successfully");
                 return succesResult;
             }

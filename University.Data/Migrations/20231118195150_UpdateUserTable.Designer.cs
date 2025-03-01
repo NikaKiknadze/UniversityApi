@@ -5,15 +5,16 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using University.Data;
 using University.Data.Data;
 
 #nullable disable
 
 namespace University.Api.Migrations
 {
-    [DbContext(typeof(UniversistyContext))]
-    [Migration("20231218065543_HierarchyTable")]
-    partial class HierarchyTable
+    [DbContext(typeof(UniversityContext))]
+    [Migration("20231118195150_UpdateUserTable")]
+    partial class UpdateUserTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -80,22 +81,6 @@ namespace University.Api.Migrations
                     b.ToTable("Faculties", "university");
                 });
 
-            modelBuilder.Entity("University.Api.Entities.Hierarchy", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("ParentId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Hierarchy", "university");
-                });
-
             modelBuilder.Entity("University.Api.Entities.Lecturer", b =>
                 {
                     b.Property<int>("Id")
@@ -112,7 +97,7 @@ namespace University.Api.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<string>("SurName")
+                    b.Property<string>("Surname")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");

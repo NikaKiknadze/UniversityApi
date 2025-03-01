@@ -1,9 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using University.Application.AllServices.ServiceAbstracts;
+using University.Data;
+using University.Data.ContextMethodsDirectory;
 using University.Data.Data;
 using University.Data.Data.Entities;
-using University.Data.Data.Repository;
 using University.Domain.CustomExceptions;
 using University.Domain.CustomResponses;
 using University.Domain.Models;
@@ -12,19 +13,19 @@ namespace University.Application.AllServices.AllServices
 {
     public class UserServices : IUserServices
     {
-        private readonly UniversistyContext _context;
-        private readonly IRepositories _repositories;
+        private readonly UniversityContext _context;
+        private readonly ContextMethods _contextMethods;
         private readonly IConfiguration _configuration;
 
-        public UserServices(IRepositories userRepository, UniversistyContext context, IConfiguration configuration)
+        public UserServices(ContextMethods userContextMethods, UniversityContext context, IConfiguration configuration)
         {
             _context = context;
-            _repositories = userRepository;
+            _contextMethods = userContextMethods;
             _configuration = configuration;
         }
         public async Task<ApiResponse<GetDtoWithCount<List<UserGetDto>>>>GetUsersAsync(UserGetFilter filter, CancellationToken cancellationToken)
         {
-            var users = await _repositories.UserRepository.GetUsersWithRelatedDataAsync(cancellationToken);
+            var users = await _contextMethods.UserRepository.GetUsersWithRelatedDataAsync(cancellationToken);
             
             if (users == null)
             {
@@ -157,11 +158,11 @@ namespace University.Application.AllServices.AllServices
                 }
             }
 
-            await _repositories.UserRepository.CreateUserAsync(user, cancellationToken);
-            await _repositories.UserRepository.SaveChangesAsync(cancellationToken);
+            await _contextMethods.UserRepository.CreateUserAsync(user, cancellationToken);
+            await _contextMethods.UserRepository.SaveChangesAsync(cancellationToken);
 
 
-            var userQueryable = await _repositories.UserRepository.GetUsersAsync(cancellationToken);
+            var userQueryable = await _contextMethods.UserRepository.GetUsersAsync(cancellationToken);
             var fetchedUser = await userQueryable
                                       .Include(u => u.Faculty)
                                       .Include(u => u.UsersLecturers)
@@ -214,7 +215,7 @@ namespace University.Application.AllServices.AllServices
 
         public async Task<ApiResponse<string>> UpdateUserAsync(UserPutDto input, CancellationToken cancellationToken)
         {
-            var userQueryable = await _repositories.UserRepository.GetUsersAsync(cancellationToken);
+            var userQueryable = await _contextMethods.UserRepository.GetUsersAsync(cancellationToken);
             var user = await userQueryable.AsQueryable()
                                       .Include(u => u.UsersCourses)
                                       .Include(u => u.UsersLecturers)
@@ -229,7 +230,7 @@ namespace University.Application.AllServices.AllServices
             user.Age = input.Age.HasValue ? (int)input.Age : 0;
             user.FacultyId = input.FacultyId.HasValue ? input.FacultyId : null;
 
-            await _repositories.UserRepository.UpdateUserAsync(user, cancellationToken);
+            await _contextMethods.UserRepository.UpdateUserAsync(user, cancellationToken);
 
 
             if (!input.CourseIds.IsNullOrEmpty())
@@ -265,7 +266,7 @@ namespace University.Application.AllServices.AllServices
             }
 
 
-            await _repositories.UserRepository.SaveChangesAsync(cancellationToken);
+            await _contextMethods.UserRepository.SaveChangesAsync(cancellationToken);
 
             var successResult = ApiResponse<string>.SuccesResult("Course changed successfully");
             return successResult;
@@ -285,11 +286,11 @@ namespace University.Application.AllServices.AllServices
                 throw new  NotFoundException("User not found on that Id");
             }
 
-            if (await _repositories.UserRepository.DeleteUserAsync(userId, cancellationToken) &&
-                    await _repositories.UserRepository.DeleteUsersCoursesAsync(userId, cancellationToken) &&
-                    await _repositories.UserRepository.DeleteUsersLecturers(userId, cancellationToken))
+            if (await _contextMethods.UserRepository.DeleteUserAsync(userId, cancellationToken) &&
+                    await _contextMethods.UserRepository.DeleteUsersCoursesAsync(userId, cancellationToken) &&
+                    await _contextMethods.UserRepository.DeleteUsersLecturers(userId, cancellationToken))
             {
-                await _repositories.UserRepository.SaveChangesAsync(cancellationToken);
+                await _contextMethods.UserRepository.SaveChangesAsync(cancellationToken);
                 var successResult = ApiResponse<string>.SuccesResult("User deleted successfully");
                 return successResult;
             }

@@ -2,9 +2,9 @@
 
 namespace University.Application.AllServices
 {
-    public class DIServices : IServices
+    public class DiServices : IServices
     {
-        public DIServices(ICourseServices courseServices,
+        public DiServices(ICourseServices courseServices,
                           IFacultyServices facultyServices,
                           ILecturerServices lecturerServices,
                           IUserServices userServices)

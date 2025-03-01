@@ -4,13 +4,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using University.Data;
 using University.Data.Data;
 
 #nullable disable
 
 namespace University.Api.Migrations
 {
-    [DbContext(typeof(UniversistyContext))]
+    [DbContext(typeof(UniversityContext))]
     partial class UniversistyContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

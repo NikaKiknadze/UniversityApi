@@ -7,13 +7,14 @@ namespace University.Data.Data.Entities
     public class Course
     {
         [Key]
-        public int Id { get; set; }
-        public string CourseName { get; set; }
+        public int Id { get; init; }
+        [MaxLength(50)]
+        public required string CourseName { get; set; }
         [ForeignKey("Faculty")]
         public int? FacultyId { get; set; }
         
-        public virtual ICollection<CoursesLecturersJoin>? CoursesLecturers { get; set; }
-        public virtual ICollection<UsersCoursesJoin>? UsersCourses { get; set; }
-        public virtual Faculty? Faculty { get; set; }
+        public virtual ICollection<CoursesLecturersJoin> CoursesLecturers { get; set; } = new HashSet<CoursesLecturersJoin>();
+        public virtual ICollection<UsersCoursesJoin> UsersCourses { get; set; } = new HashSet<UsersCoursesJoin>();
+        public virtual Faculty? Faculty { get; init; }
     }
 }
