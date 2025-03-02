@@ -12,7 +12,6 @@ namespace University.Data.Data.Entities
         public required string CourseName { get; set; }
         [ForeignKey("Faculty")]
         public int? FacultyId { get; set; }
-
         public bool IsActive { get; set; } = true;
         public virtual ICollection<CoursesLecturersJoin> CoursesLecturers { get; init; } = new HashSet<CoursesLecturersJoin>();
         public virtual ICollection<UsersCourses> UsersCourses { get; init; } = new HashSet<UsersCourses>();

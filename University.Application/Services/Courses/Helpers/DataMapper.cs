@@ -1,5 +1,9 @@
 ﻿using University.Data.Data.Entities;
 using University.Domain.Models;
+using University.Domain.Models.CourseModels;
+using University.Domain.Models.FacultyModels;
+using University.Domain.Models.LecturerModels;
+using University.Domain.Models.UserModels;
 
 namespace University.Application.Services.Courses.Helpers;
 

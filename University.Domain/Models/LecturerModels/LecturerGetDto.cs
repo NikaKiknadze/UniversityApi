@@ -1,4 +1,7 @@
-﻿namespace University.Domain.Models
+﻿using University.Domain.Models.CourseModels;
+using University.Domain.Models.UserModels;
+
+namespace University.Domain.Models.LecturerModels
 {
     public class LecturerGetDto
     {

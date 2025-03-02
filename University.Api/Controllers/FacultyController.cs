@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using University.Application.Services.Faculties;
 using University.Domain.Models;
+using University.Domain.Models.FacultyModels;
 
 namespace University.Api.Controllers
 {

@@ -1,4 +1,4 @@
-﻿namespace University.Domain.Models
+﻿namespace University.Domain.Models.FacultyModels
 {
     public class FacultyOnlyDto
     {

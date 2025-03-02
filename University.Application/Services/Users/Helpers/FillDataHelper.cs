@@ -1,5 +1,6 @@
 ﻿using University.Data.Data.Entities;
 using University.Domain.Models;
+using University.Domain.Models.UserModels;
 
 namespace University.Application.Services.Users.Helpers;
 

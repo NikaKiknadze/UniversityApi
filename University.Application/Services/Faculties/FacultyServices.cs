@@ -5,21 +5,16 @@ using University.Data.Data.Entities;
 using University.Domain.CustomExceptions;
 using University.Domain.CustomResponses;
 using University.Domain.Models;
+using University.Domain.Models.FacultyModels;
 
 namespace University.Application.Services.Faculties
 {
-    public class FacultyServices : IFacultyServices
+    public class FacultyServices(IUniversityContext universityContext) : IFacultyServices
     {
-        private readonly IUniversityContext _universityContext;
-        public FacultyServices(IUniversityContext universityContext)
-        {
-            _universityContext = universityContext;
-        }
-
         public async Task<ApiResponse<GetDtoWithCount<ICollection<FacultyGetDto>>>> Get(FacultyGetFilter filter,
             CancellationToken cancellationToken)
         {
-            var faculties = _universityContext.Faculties.AllAsNoTracking.FilterData(filter);
+            var faculties = universityContext.Faculties.AllAsNoTracking.FilterData(filter);
 
             var result = await faculties
                 .MapToFacultyGetDto()
@@ -44,16 +39,16 @@ namespace University.Application.Services.Faculties
                 FacultyName = input.FacultyName
             };
 
-            faculty = await faculty.FillData(input, _universityContext, cancellationToken);
+            faculty = await faculty.FillData(input, universityContext, cancellationToken);
 
-            await _universityContext.Faculties.AddAsync(faculty, cancellationToken);
+            await universityContext.Faculties.AddAsync(faculty, cancellationToken);
 
             return faculty.Id;
         }
 
         public async Task<int> Update(FacultyPutDto input, CancellationToken cancellationToken)
         {
-            var faculty = await _universityContext.Faculties.All
+            var faculty = await universityContext.Faculties.All
                 .Include(f => f.Users)
                 .Include(f => f.Courses)
                 .FirstOrDefaultAsync(faculty => faculty.Id == input.Id,
@@ -62,16 +57,16 @@ namespace University.Application.Services.Faculties
             if(faculty is null)
                 throw new NotFoundException("Faculty not found");
             
-            faculty = await faculty.FillData(input, _universityContext, cancellationToken);
+            faculty = await faculty.FillData(input, universityContext, cancellationToken);
             
-            await _universityContext.CompleteAsync(cancellationToken);
+            await universityContext.CompleteAsync(cancellationToken);
             
             return faculty.Id;
         }
 
         public async Task<int> Delete(int facultyId, CancellationToken cancellationToken)
         {
-            var faculty = await _universityContext.Faculties.All
+            var faculty = await universityContext.Faculties.All
                 .Include(f => f.Users)
                 .Include(f => f.Courses)
                 .FirstOrDefaultAsync(f => f.Id == facultyId, cancellationToken);
@@ -82,7 +77,7 @@ namespace University.Application.Services.Faculties
             faculty.Users.Clear();
             faculty.Courses.Clear();
             faculty.IsActive = false;
-            await _universityContext.CompleteAsync(cancellationToken);
+            await universityContext.CompleteAsync(cancellationToken);
             
             return facultyId;
         }

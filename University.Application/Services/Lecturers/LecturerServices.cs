@@ -5,21 +5,16 @@ using University.Data.Data.Entities;
 using University.Domain.CustomExceptions;
 using University.Domain.CustomResponses;
 using University.Domain.Models;
+using University.Domain.Models.LecturerModels;
 
 namespace University.Application.Services.Lecturers
 {
-    public class LecturerServices : ILecturerServices
+    public class LecturerServices(IUniversityContext universityContext) : ILecturerServices
     {
-        private readonly IUniversityContext _universityContext;
-        public LecturerServices(IUniversityContext universityContext)
-        {
-            _universityContext = universityContext;
-        }
-
         public async Task<ApiResponse<GetDtoWithCount<ICollection<LecturerGetDto>>>> Get(LecturerGetFilter filter,
             CancellationToken cancellationToken)
         {
-            var lecturers = _universityContext.Lecturers.AllAsNoTracking.FilterData(filter);
+            var lecturers = universityContext.Lecturers.AllAsNoTracking.FilterData(filter);
 
             var result = await lecturers
                 .MapDataToLecturerGetDto()
@@ -48,14 +43,14 @@ namespace University.Application.Services.Lecturers
 
             lecturer = lecturer.FillData(input);
 
-            await _universityContext.Lecturers.AddAsync(lecturer, cancellationToken);
+            await universityContext.Lecturers.AddAsync(lecturer, cancellationToken);
 
             return lecturer.Id;
         }
 
         public async Task<int> Update(LecturerPutDto input, CancellationToken cancellationToken)
         {
-            var lecturer = await _universityContext.Lecturers.All
+            var lecturer = await universityContext.Lecturers.All
                 .Include(l => l.UsersLecturers)
                 .Include(l => l.CoursesLecturers)
                 .FirstOrDefaultAsync(lecturer => lecturer.Id == input.Id, cancellationToken);
@@ -65,13 +60,13 @@ namespace University.Application.Services.Lecturers
 
             lecturer = lecturer.FillData(input);
             
-            await _universityContext.CompleteAsync(cancellationToken);
+            await universityContext.CompleteAsync(cancellationToken);
             return lecturer.Id;
         }
 
         public async Task<int> Delete(int lecturerId, CancellationToken cancellationToken)
         {
-            var lecturer = await _universityContext.Lecturers.All
+            var lecturer = await universityContext.Lecturers.All
                 .Include(ul => ul.UsersLecturers)
                 .ThenInclude(u => u.User)
                 .Include(cl => cl.CoursesLecturers)
@@ -85,7 +80,7 @@ namespace University.Application.Services.Lecturers
             lecturer.UsersLecturers.Clear();
             lecturer.IsActive = false;
             
-            await _universityContext.CompleteAsync(cancellationToken);
+            await universityContext.CompleteAsync(cancellationToken);
             return lecturer.Id;
         }
     }

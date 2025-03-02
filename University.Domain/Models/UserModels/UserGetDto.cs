@@ -1,8 +1,12 @@
-﻿namespace University.Domain.Models
+﻿using University.Domain.Models.CourseModels;
+using University.Domain.Models.FacultyModels;
+using University.Domain.Models.LecturerModels;
+
+namespace University.Domain.Models.UserModels
 {
     public class UserGetDto
     {
-        public int Id { get; init; }
+        public int Id { get; set; }
 
         public required string Name { get; set; }
         

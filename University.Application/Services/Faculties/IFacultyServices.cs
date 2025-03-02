@@ -1,5 +1,6 @@
 ﻿using University.Domain.CustomResponses;
 using University.Domain.Models;
+using University.Domain.Models.FacultyModels;
 
 namespace University.Application.Services.Faculties
 {

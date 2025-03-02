@@ -5,21 +5,16 @@ using University.Data.Data.Entities;
 using University.Domain.CustomExceptions;
 using University.Domain.CustomResponses;
 using University.Domain.Models;
+using University.Domain.Models.UserModels;
 
 namespace University.Application.Services.Users
 {
-    public class UserServices : IUserServices
+    public class UserServices(IUniversityContext universityContext) : IUserServices
     {
-        private readonly IUniversityContext _universityContext;
-        public UserServices(IUniversityContext universityContext)
-        {
-            _universityContext = universityContext;
-        }
-
         public async Task<ApiResponse<GetDtoWithCount<ICollection<UserGetDto>>>> Get(UserGetFilter filter,
             CancellationToken cancellationToken)
         {
-            var users = _universityContext.Users.AllAsNoTracking.FilterData(filter);
+            var users = universityContext.Users.AllAsNoTracking.FilterData(filter);
 
             var result = await users
                 .MapDataToUserGetDto()
@@ -49,14 +44,14 @@ namespace University.Application.Services.Users
 
             user = user.FillData(input);
             
-            await _universityContext.Users.AddAsync(user, cancellationToken);
+            await universityContext.Users.AddAsync(user, cancellationToken);
             
             return user.Id;
         }
 
         public async Task<int> Update(UserPutDto input, CancellationToken cancellationToken)
         {
-            var user = await _universityContext.Users.All
+            var user = await universityContext.Users.All
                 .Include(u => u.UsersCourses)
                 .Include(u => u.UsersLecturers)
                 .Where(u => u.Id == input.Id)
@@ -67,14 +62,14 @@ namespace University.Application.Services.Users
 
             user = user.FillData(input);
 
-            await _universityContext.CompleteAsync(cancellationToken);
+            await universityContext.CompleteAsync(cancellationToken);
             
             return user.Id;
         }
 
         public async Task<int> Delete(int userId, CancellationToken cancellationToken)
         {
-            var user = await _universityContext.Users.All
+            var user = await universityContext.Users.All
                 .Include(u => u.UsersCourses)
                 .Include(u => u.UsersLecturers)
                 .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken: cancellationToken);
@@ -86,7 +81,7 @@ namespace University.Application.Services.Users
             user.UsersCourses.Clear();
             user.IsActive = false;
             
-            await _universityContext.CompleteAsync(cancellationToken);
+            await universityContext.CompleteAsync(cancellationToken);
             
             return user.Id;
         }

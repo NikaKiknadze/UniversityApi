@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using University.Data.Data.Entities;
 using University.Domain.Models;
+using University.Domain.Models.CourseModels;
 
 namespace University.Application.Services.Courses.Helpers;
 
@@ -8,7 +9,7 @@ public static class FilterDataHelper
 {
     public static IQueryable<Course> FilterData(this IQueryable<Course> query, CourseGetFilter filter)
     {
-        query = query.Where(c => c.IsActive == CourseGetFilter.IsActive);
+        query = query.Where(c => c.IsActive == filter.IsActive);
         
         if(filter.Id != null)
         {

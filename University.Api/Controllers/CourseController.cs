@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using University.Application.Services.Courses;
-using University.Domain.Models;
+using University.Domain.Models.CourseModels;
 
 namespace University.Api.Controllers;
 

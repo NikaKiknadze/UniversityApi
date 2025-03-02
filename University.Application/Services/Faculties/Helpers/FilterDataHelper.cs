@@ -1,5 +1,6 @@
 ﻿using University.Data.Data.Entities;
 using University.Domain.Models;
+using University.Domain.Models.FacultyModels;
 
 namespace University.Application.Services.Faculties.Helpers;
 
@@ -7,7 +8,7 @@ public static class FilterDataHelper
 {
     public static IQueryable<Faculty> FilterData(this IQueryable<Faculty> query, FacultyGetFilter filter)
     {
-        query = query.Where(f => f.IsActive == FacultyGetFilter.IsActive);
+        query = query.Where(f => f.IsActive == filter.IsActive);
         
         if (filter.Id != null)
         {

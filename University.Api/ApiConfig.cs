@@ -1,6 +1,5 @@
 ﻿using System.Globalization;
 using Swashbuckle.AspNetCore.SwaggerUI;
-using University.Api.Middlewares;
 using static System.DateTime;
 
 namespace University.Api;

@@ -2,6 +2,8 @@
 using University.Application.Services.Lecturers;
 using University.Application.Services.Users;
 using University.Domain.Models;
+using University.Domain.Models.LecturerModels;
+using University.Domain.Models.UserModels;
 
 namespace University.Api.Controllers;
 

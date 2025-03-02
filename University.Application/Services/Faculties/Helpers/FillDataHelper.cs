@@ -2,6 +2,7 @@
 using University.Data.ContextMethodsDirectory;
 using University.Data.Data.Entities;
 using University.Domain.Models;
+using University.Domain.Models.FacultyModels;
 
 namespace University.Application.Services.Faculties.Helpers;
 
