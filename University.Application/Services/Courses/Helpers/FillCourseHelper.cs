@@ -1,5 +1,4 @@
 ﻿using University.Data.Data.Entities;
-using University.Domain.Models;
 using University.Domain.Models.CourseModels;
 
 namespace University.Application.Services.Courses.Helpers;

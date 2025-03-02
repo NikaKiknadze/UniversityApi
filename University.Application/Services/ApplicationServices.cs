@@ -1,9 +1,12 @@
-﻿using University.Application.Services.Courses;
+﻿using University.Application.Services.Auth;
+using University.Application.Services.Courses;
 using University.Application.Services.Faculties;
+using University.Application.Services.Identity;
 using University.Application.Services.Lecturers;
 using University.Application.Services.Users;
+using University.Data.ContextMethodsDirectory;
 
-namespace University.Application
+namespace University.Application.Services
 {
     public static class DependencyConfiguration
     {
@@ -13,6 +16,10 @@ namespace University.Application
             services.AddScoped<IFacultyServices, FacultyServices>();
             services.AddScoped<ILecturerServices,  LecturerServices>();
             services.AddScoped<IUserServices, UserServices>();
+            services.AddScoped<IContextMethods, ContextMethods>();
+            services.AddScoped<IUniversityContext, UniversityContext>();
+            services.AddScoped<IAuthServices, AuthServices>();
+            services.AddScoped<IUserIdentity, UserIdentity>();
         }
     }
 }

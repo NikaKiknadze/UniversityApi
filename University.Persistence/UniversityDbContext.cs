@@ -3,10 +3,8 @@ using University.Data.Data.Entities;
 
 namespace University.Data
 {
-    public class UniversityDbContext : DbContext
+    public class UniversityDbContext(DbContextOptions<UniversityDbContext> options) : DbContext(options)
     {
-        public UniversityDbContext(DbContextOptions<UniversityDbContext> options) : base(options) { }
-        
         public DbSet<User> Users { get; set; }
         public DbSet<Lecturer> Lecturers { get; set; }
         public DbSet<Course> Courses { get; set; }
@@ -57,7 +55,7 @@ namespace University.Data
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole()));
+            // optionsBuilder.UseLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole()));
         }
     }
 

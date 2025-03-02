@@ -1,5 +1,4 @@
 ﻿using University.Data.Data.Entities;
-using University.Domain.Models;
 using University.Domain.Models.CourseModels;
 using University.Domain.Models.FacultyModels;
 using University.Domain.Models.UserModels;
@@ -14,12 +13,13 @@ public static class DataMapper
         {
             Id = f.Id,
             FacultyName = f.FacultyName,
-            Users = f.Users.Select(u => new UserOnlyDto
+            Users = f.Users.Where(user => user.UserProfile != null)
+                .Select(u => new UserOnlyDto
             {
                 Id = u.Id,
-                Name = u.Name,
-                SurName = u.SurName,
-                Age = u.Age
+                FirstName = u.UserProfile!.FirstName,
+                LastName = u.UserProfile.LastName,
+                Age = u.UserProfile.Age
             }).ToList(),
             Courses = f.Courses.Select(uc => new CourseOnlyDto
             {

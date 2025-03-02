@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using University.Application.PublicHelpers;
 using University.Application.Services.Users.Helpers;
 using University.Data.ContextMethodsDirectory;
 using University.Data.Data.Entities;
@@ -34,17 +35,33 @@ namespace University.Application.Services.Users
 
         public async Task<int> Create(UserPostDto input, CancellationToken cancellationToken)
         {
+            var userExists =
+                await universityContext.Users.AllAsNoTracking.AnyAsync(u => u.Username == input.UserName,
+                    cancellationToken);
+            
+            if(userExists)
+                throw new BadRequestException($"User already exists with this username: {input.UserName}");
+            
             var user = new User
             {
-                Name = input.Name,
-                SurName = input.SurName,
-                Age = input.Age,
-                FacultyId = input.FacultyId
+                Username = input.UserName,
+                PasswordHash = BCrypt.Net.BCrypt.EnhancedHashPassword(input.Password, BCrypt.Net.HashType.SHA384)
             };
 
             user = user.FillData(input);
             
-            await universityContext.Users.AddAsync(user, cancellationToken);
+            universityContext.Users.Add(user);
+
+            user.UserProfile = new UserProfile()
+            {
+                UserId = user.Id,
+                FirstName = input.FirstName,
+                LastName = input.LastName,
+                Age = input.Age,
+                FacultyId = input.FacultyId
+            };
+            
+            await universityContext.CompleteAsync(cancellationToken);
             
             return user.Id;
         }
@@ -54,6 +71,7 @@ namespace University.Application.Services.Users
             var user = await universityContext.Users.All
                 .Include(u => u.UsersCourses)
                 .Include(u => u.UsersLecturers)
+                .Include(u => u.UserProfile)
                 .Where(u => u.Id == input.Id)
                 .FirstOrDefaultAsync(cancellationToken);
 

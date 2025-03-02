@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using University.Application.Services.Lecturers;
 using University.Application.Services.Users;
 using University.Domain.Models;
@@ -7,8 +8,9 @@ using University.Domain.Models.UserModels;
 
 namespace University.Api.Controllers;
 
-[Route("api/[controller]")]
+[Authorize]
 [ApiController]
+[Route("api/[controller]")]
 public class ManagementController(
     IUserServices userServices,
     ILecturerServices lecturerServices) : ControllerBase

@@ -9,16 +9,13 @@ namespace University.Data.Data.Entities
         [Key]
         public int Id { get; init; }
         [MaxLength(20)]
-        public required string Name { get; set; }
-        [MaxLength(20)]
-        public required string SurName { get; set; }
-        public required int Age { get; set; }
-        [ForeignKey("Faculty")]
-        public int? FacultyId { get; set; }
-
+        public required string Username { get; init; }
+        [MaxLength(70)]
+        public required string PasswordHash { get; init; }
         public bool IsActive { get; set; } = true;
+        
         public virtual ICollection<UsersLecturers> UsersLecturers { get; init; } = new HashSet<UsersLecturers>();
         public virtual ICollection<UsersCourses> UsersCourses { get; init; } = new HashSet<UsersCourses>();
-        public virtual Faculty? Faculty { get; init; }
+        public virtual UserProfile? UserProfile { get; set; }
     }
 }

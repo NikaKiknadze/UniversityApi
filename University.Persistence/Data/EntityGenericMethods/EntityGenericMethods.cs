@@ -3,14 +3,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace University.Data.Data.EntityGenericMethods;
 
-public class EntityGenericMethods<TEntity> : IEntityGenericMethods<TEntity> where TEntity : class
+public class EntityGenericMethods<TEntity>(DbContext context) : IEntityGenericMethods<TEntity>
+    where TEntity : class
 {
-    private readonly DbContext _context;
-
-    public EntityGenericMethods(DbContext context)
-    {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
-    }
+    private readonly DbContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
     public IQueryable<TEntity> All => _context.Set<TEntity>();
     public IQueryable<TEntity> AllAsNoTracking => _context.Set<TEntity>().AsNoTracking();

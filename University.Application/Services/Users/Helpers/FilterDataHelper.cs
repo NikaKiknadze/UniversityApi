@@ -1,5 +1,5 @@
-﻿using University.Data.Data.Entities;
-using University.Domain.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using University.Data.Data.Entities;
 using University.Domain.Models.UserModels;
 
 namespace University.Application.Services.Users.Helpers;
@@ -14,27 +14,31 @@ public static class FilterDataHelper
         {
             query = query.Where(u => u.Id == filter.Id);
         }
-        if (!string.IsNullOrEmpty(filter.Name))
+        if (!string.IsNullOrEmpty(filter.FirstName))
         {
-            query = query.Where(u => u.Name.Contains(filter.Name));
+            query.Include(u => u.UserProfile.Faculty);
+            query = query.Where(u => u.UserProfile.FirstName.Contains(filter.FirstName));
         }
-        if(!string.IsNullOrEmpty(filter.SurName))
+        if(!string.IsNullOrEmpty(filter.LastName))
         {
-            query = query.Where(u => u.SurName.Contains(filter.SurName));
+            query.Include(u => u.UserProfile.Faculty);
+            query = query.Where(u => u.UserProfile.LastName.Contains(filter.LastName));
         }
         if(filter.Age != null)
         {
-            query = query.Where(u => u.Age == filter.Age);
+            query.Include(u => u.UserProfile.Faculty);
+            query = query.Where(u => u.UserProfile.Age == filter.Age);
         }
         if(filter.FacultyId != null)
         {
-            query = query.Where(u => u.FacultyId == filter.FacultyId);
+            query.Include(u => u.UserProfile.Faculty);
+            query = query.Where(u => u.UserProfile.FacultyId == filter.FacultyId);
         }
-        if (filter.CourseIds != null && filter.CourseIds.Any())
+        if (filter.CourseIds != null && filter.CourseIds.Count != 0)
         {
             query = query.Where(u => u.UsersCourses.Any(uc => filter.CourseIds.Contains(uc.CourseId)));
         }
-        if(filter.LecturerIds != null && filter.LecturerIds.Any())
+        if(filter.LecturerIds != null && filter.LecturerIds.Count != 0)
         {
             query = query.Where(u => u.UsersLecturers.Any(ul => filter.LecturerIds.Contains(ul.LecturerId)));
         }

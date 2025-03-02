@@ -15,28 +15,28 @@ namespace University.Api.Middlewares
             }
             catch (NotFoundException ex)
             {
-                await HandleException(context, ex, (int)HttpStatusCode.NotFound, "Not Found");
+                await HandleException(context, ex, (int)HttpStatusCode.NotFound);
             }
             catch (BadRequestException ex)
             {
-                await HandleException(context, ex, (int)HttpStatusCode.BadRequest, "Bad Request");
+                await HandleException(context, ex, (int)HttpStatusCode.BadRequest);
             }
             catch (ConflictException ex)
             {
-                await HandleException(context, ex, (int)HttpStatusCode.Conflict, "Conflict");
+                await HandleException(context, ex, (int)HttpStatusCode.Conflict);
             }
             catch (NoContentException ex)
             {
-                await HandleException(context, ex, (int)HttpStatusCode.NoContent, "No Content");
+                await HandleException(context, ex, (int)HttpStatusCode.NoContent);
             }
             catch(Exception ex)
             {
-                await HandleException(context, ex, (int)HttpStatusCode.InternalServerError, "Internal Server Error");
+                await HandleException(context, ex, (int)HttpStatusCode.InternalServerError);
             }
 
         }
 
-        private async Task HandleException(HttpContext context, Exception ex, int statusCode, string title)
+        private async Task HandleException(HttpContext context, Exception ex, int statusCode)
         {
             logger.LogError(ex, ex.Message);
 

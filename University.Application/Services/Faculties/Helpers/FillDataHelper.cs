@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using University.Data.ContextMethodsDirectory;
 using University.Data.Data.Entities;
-using University.Domain.Models;
 using University.Domain.Models.FacultyModels;
 
 namespace University.Application.Services.Faculties.Helpers;
@@ -14,14 +13,17 @@ public static class FillDataHelper
     {
         if (input.UserIds is { Count: > 0 })
         {
-            var users = await universityContext.Users.All.Where(user => input.UserIds.Contains(user.Id))
+            var users = await universityContext.Users.All
+                .Where(user => input.UserIds.Contains(user.Id) && 
+                               user.IsActive && 
+                               user.UserProfile != null)
                 .ToListAsync(cancellationToken);
 
             if (users.Count != 0)
                 foreach (var user in users)
                 {
-                    user.FacultyId = faculty.Id;
-                    user.FacultyId = faculty.Id;
+                    user.UserProfile!.FacultyId = faculty.Id;
+                    user.UserProfile.FacultyId = faculty.Id;
                     faculty.Users.Add(user);
                 }
         }
@@ -51,14 +53,17 @@ public static class FillDataHelper
         faculty.Users.Clear();
         if (input.UserIds is {Count: > 0})
         {
-            var users = await universityContext.Users.All.Where(user => input.UserIds.Contains(user.Id))
+            var users = await universityContext.Users.All
+                .Where(user => input.UserIds.Contains(user.Id) &&
+                               user.IsActive &&
+                               user.UserProfile != null)
                 .ToListAsync(cancellationToken);
 
             if (users.Count != 0)
                 foreach (var user in users)
                 {
-                    user.FacultyId = faculty.Id;
-                    user.FacultyId = faculty.Id;
+                    user.UserProfile!.FacultyId = faculty.Id;
+                    user.UserProfile.FacultyId = faculty.Id;
                     faculty.Users.Add(user);
                 }
         }

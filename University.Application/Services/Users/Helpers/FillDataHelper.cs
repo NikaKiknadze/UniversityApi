@@ -1,5 +1,4 @@
 ﻿using University.Data.Data.Entities;
-using University.Domain.Models;
 using University.Domain.Models.UserModels;
 
 namespace University.Application.Services.Users.Helpers;
@@ -30,10 +29,10 @@ public static class FillDataHelper
     
     public static User FillData(this User user, UserPutDto input)
     {
-        user.Name = input.Name;
-        user.SurName = input.Surname;
-        user.Age = input.Age;
-        user.FacultyId = input.FacultyId;
+        user.UserProfile.FirstName = input.FirstName;
+        user.UserProfile.LastName = input.LastName;
+        user.UserProfile.Age = input.Age;
+        user.UserProfile.FacultyId = input.FacultyId;
 
         user.UsersCourses.Clear();
         if (input.CourseIds is {Count: > 0})

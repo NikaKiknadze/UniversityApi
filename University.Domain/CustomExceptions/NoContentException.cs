@@ -1,13 +1,13 @@
 ﻿namespace University.Domain.CustomExceptions
 {
-    public class NoContentException : Exception
+    public abstract class NoContentException : Exception
     {
-        public NoContentException(string message) : base(message)
+        protected NoContentException(string message) : base(message)
         {
 
         }
 
-        public NoContentException(string message, Exception innerException) : base(message, innerException)
+        protected NoContentException(string message, Exception innerException) : base(message, innerException)
         {
 
         }
