@@ -1,32 +1,34 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using University.Application.AllServices.ServiceAbstracts;
+using University.Application.Services.Courses;
 using University.Domain.Models;
 
 namespace University.Api.Controllers;
 
+[Route("api/[controller]")]
+[ApiController]
 public class CourseController(ICourseServices courseServices) : ControllerBase
 {
-    [HttpGet("Courses", Name = "GetCourses")]
-    public async Task<ActionResult<GetDtoWithCount<CourseGetDto>>> GetCoursesAsync([FromQuery]CourseGetFilter filter, CancellationToken cancellationToken)
+    [HttpGet]
+    public async Task<IActionResult> GetCoursesAsync([FromQuery]CourseGetFilter filter, CancellationToken cancellationToken)
     {
-        return Ok(await courseServices.GetCoursesAsync(filter, cancellationToken));
+        return Ok(await courseServices.Get(filter, cancellationToken));
     }
 
-    [HttpPost("Courses", Name = "CreateCourse")]
-    public async Task<ActionResult<CourseGetDto>> CreateCourseAsync(CoursePostDto input, CancellationToken cancellationToken)
+    [HttpPost]
+    public async Task<IActionResult> CreateCourseAsync(CoursePostDto input, CancellationToken cancellationToken)
     {
-        return Ok(await courseServices.CreateCourseAsync(input, cancellationToken));
+        return Ok(await courseServices.Create(input, cancellationToken));
     }
 
-    [HttpPut("Courses", Name = "PutCourse")]
-    public async Task<ActionResult<bool>> PutCourseAsync(CoursePutDto input, CancellationToken cancellationToken)
+    [HttpPut]
+    public async Task<IActionResult> PutCourseAsync(CoursePutDto input, CancellationToken cancellationToken)
     {
-        return Ok(await courseServices.UpdateCourseAsync(input, cancellationToken));
+        return Ok(await courseServices.Update(input, cancellationToken));
     }
 
-    [HttpDelete("Courses/{courseId}", Name = "DeleteCourse")]
-    public async Task<ActionResult<bool>> DeleteCourse(int courseId, CancellationToken cancellationToken)
+    [HttpDelete]
+    public async Task<IActionResult> DeleteCourse(int courseId, CancellationToken cancellationToken)
     {
-        return Ok(await courseServices.DeleteCourse(courseId, cancellationToken));
+        return Ok(await courseServices.Delete(courseId, cancellationToken));
     }
 }

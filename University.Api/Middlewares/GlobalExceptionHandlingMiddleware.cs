@@ -44,13 +44,11 @@ namespace University.Api.Middlewares
 
             context.Response.ContentType = "application/json";
 
-            var errorResponse = ApiResponse<object>.ErrorResult(ex.Message);
+            var errorResponse = ApiResponse<object>.ExceptionResult(new {ex.Message, ex.InnerException});
 
             var jsonErrorResponse = JsonConvert.SerializeObject(errorResponse);
 
             await context.Response.WriteAsync(jsonErrorResponse);
-
-            
         }
     }
 }

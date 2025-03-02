@@ -2,7 +2,7 @@
 {
     public class GetDtoWithCount<T>
     {
-        public T? Data { get; set; }
-        public int? Count { get; set; }
+        public required T Data { get; set; }
+        public int Count { get; set; }
     }
 }

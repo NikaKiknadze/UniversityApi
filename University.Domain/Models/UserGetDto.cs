@@ -2,13 +2,13 @@
 {
     public class UserGetDto
     {
-        public int? Id { get; set; }
+        public int Id { get; init; }
 
-        public string? Name { get; set; }
+        public required string Name { get; set; }
         
-        public string? SurName { get; set; }
+        public required string SurName { get; set; }
         
-        public int? Age { get; set; }
+        public required int Age { get; set; }
         
         public FacultyOnlyDto? Faculty { get; set; }
         

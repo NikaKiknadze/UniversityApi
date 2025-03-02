@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "University.Domain", "Univer
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "University.Application", "University.Application\University.Application.csproj", "{E6004692-BBCF-4B86-A386-CD8B997262AA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "University.Data", "University.Data\University.Data.csproj", "{DA9D5E20-E560-4BAB-AF67-5D291C403E15}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "University.Persistence", "University.Persistence\University.Persistence.csproj", "{DA9D5E20-E560-4BAB-AF67-5D291C403E15}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

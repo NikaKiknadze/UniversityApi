@@ -1,19 +1,22 @@
 ﻿namespace University.Domain.Models
 {
-    public class UserGetFilter : Pageing
+    public class UserGetFilter(
+        int? id,
+        string? name,
+        string? surName,
+        int? age,
+        int? facultyId,
+        List<int>? courseIds,
+        List<int>? lecturerIds)
+        : Paging
     {
-        public int? Id { get; set; }
-
-        public string? Name { get; set; }
-
-        public string? SurName { get; set; }
-
-        public int? Age { get; set; }
-
-        public int? FacultyId { get; set; }
-
-        public List<int>? CourseIds { get; set; }
-
-        public List<int>? LecturerIds { get; set; }
+        public int? Id { get; } = id;
+        public string? Name { get; } = name;
+        public string? SurName { get; } = surName;
+        public int? Age { get; } = age;
+        public int? FacultyId { get; } = facultyId;
+        public static bool IsActive => true;
+        public List<int>? CourseIds { get; } = courseIds;
+        public List<int>? LecturerIds { get; } = lecturerIds;
     }
 }

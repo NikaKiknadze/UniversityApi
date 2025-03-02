@@ -2,8 +2,7 @@
 {
     public class FacultyOnlyDto
     {
-        public int? Id { get; set; }
-
+        public int Id { get; set; }
         public string? FacultyName { get; set; }
     }
 }

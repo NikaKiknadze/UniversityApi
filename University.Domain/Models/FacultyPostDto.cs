@@ -1,11 +1,9 @@
 ﻿namespace University.Domain.Models
 {
-    public class FacultyPostDto
+    public class FacultyPostDto(string facultyName, List<int>? userIds, List<int>? courseIds)
     {
-        public string? FacultyName { get; set; }
-
-        public List<int>? UserIds { get; set; }
-
-        public List<int>? CourseIds { get; set; }
+        public required string FacultyName { get; init; } = facultyName;
+        public List<int>? UserIds { get; } = userIds;
+        public List<int>? CourseIds { get; } = courseIds;
     }
 }

@@ -1,17 +1,12 @@
 ﻿namespace University.Domain.Models
 {
-    public class LecturerPutDto
+    public class LecturerPutDto(int id, string name, string surname, int age, List<int>? userIds, List<int>? courseIds)
     {
-        public int? Id { get; set; }
-
-        public string? Name { get; set; }
-
-        public string? Surname { get; set; }
-
-        public int? Age { get; set; }
-
-        public List<int>? UserIds { get; set; }
-
-        public List<int>? CourseIds { get; set; }
+        public int Id { get; } = id;
+        public required string Name { get; init; } = name;
+        public required string Surname { get; init; } = surname;
+        public required int Age { get; init; } = age;
+        public List<int>? UserIds { get; } = userIds;
+        public List<int>? CourseIds { get; } = courseIds;
     }
 }

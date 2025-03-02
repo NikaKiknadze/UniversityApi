@@ -1,99 +1,68 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using University.Application.AllServices.ServiceAbstracts;
+using University.Application.Services.Lecturers;
+using University.Application.Services.Users;
 using University.Domain.Models;
 
 namespace University.Api.Controllers;
 
+[Route("api/[controller]")]
+[ApiController]
 public class ManagementController(
     IUserServices userServices,
-    IHierarchyService hierarchyService,
     ILecturerServices lecturerServices) : ControllerBase
 {
     #region Users
 
-    [HttpGet("Users", Name = "GetUsers")]
+    [HttpGet("Users")]
     public async Task<ActionResult<GetDtoWithCount<UserGetDto>>> GetUsersAsync([FromQuery] UserGetFilter filter, CancellationToken cancellationToken)
     {
-        return Ok(await userServices.GetUsersAsync(filter, cancellationToken));
+        return Ok(await userServices.Get(filter, cancellationToken));
     }
 
-    [HttpPost("Users", Name = "PostUser")]
-    public async Task<ActionResult<UserGetDto>> PostUsesrAsync(UserPostDto input, CancellationToken cancellationToken)
+    [HttpPost("Users")]
+    public async Task<ActionResult<UserGetDto>> PostUsersAsync(UserPostDto input, CancellationToken cancellationToken)
     {
-        return Ok(await userServices.CreateUserAsync(input, cancellationToken));
+        return Ok(await userServices.Create(input, cancellationToken));
     }
 
-    [HttpPut("Users", Name = "PutUser")]
+    [HttpPut("Users")]
     public async Task<ActionResult<bool>> PutUserAsync(UserPutDto input, CancellationToken cancellationToken)
     {
-        return Ok(await userServices.UpdateUserAsync(input, cancellationToken));
+        return Ok(await userServices.Update(input, cancellationToken));
     }
 
-    [HttpDelete("Users/{userId}", Name = "DeleteUser")]
+    [HttpDelete("Users")]
     public async Task<ActionResult<bool>> DeleteUserAsync(int userId, CancellationToken cancellationToken)
     {
-        return Ok(await userServices.DeleteUserAsync(userId, cancellationToken));
+        return Ok(await userServices.Delete(userId, cancellationToken));
     }
 
-    [HttpGet("Todos", Name = "GetTodosInfo")]
-    public async Task<ActionResult<GetDtoWithCount<IEnumerable<TodosDto>>>> GetTodosInfo([FromQuery]TodosDto filter, CancellationToken cancellationToken)
-    {
-        return Ok(await userServices.GetTodosInfo(filter, cancellationToken));
-    }
-
-    #endregion
-    
-    #region HierarchyServices
-
-    [HttpGet("Hierarchy", Name = "GetHyerarchyObjects")]
-    public async Task<ActionResult<GetDtoWithCount<HierarchyDto>>> GetHierarchyObjectsAsync([FromQuery] HierarchyDto filter, CancellationToken cancellationToken)
-    {
-        return Ok(await hierarchyService.Get(filter, cancellationToken));
-    }
-
-    [HttpPost("Hierarchy", Name = "PostHierarchyObject")]
-    public async Task<ActionResult<HierarchyDto>> PostHierarchyObjectAsync(HierarchyDto input, CancellationToken cancellationToken)
-    {
-        return Ok(await hierarchyService.Create(input, cancellationToken));
-    }
-
-    [HttpPut("Hierarchy", Name = "PutHierarchyObject")]
-    public async Task<ActionResult<bool>> PutHierarchyAsync(HierarchyDto input, CancellationToken cancellationToken)
-    {
-        return Ok(await hierarchyService.Update(input, cancellationToken));
-    }
-
-    [HttpDelete("Hierarchy/{hierarchyId}", Name = "DeleteHierarchyObject")]
-    public async Task<ActionResult<bool>> DeleteHierarchyAsync(int hierarchyId, CancellationToken cancellationToken)
-    {
-        return Ok(await hierarchyService.Delete(hierarchyId, cancellationToken));
-    }
     #endregion
 
     #region Lecturers
 
-    [HttpGet("Lecturers", Name = "GetLecturers")]
+    [HttpGet("Lecturers")]
     public async Task<ActionResult> GetLecturersAsync([FromQuery]LecturerGetFilter filter, CancellationToken cancellationToken)
     {
-        return Ok(await lecturerServices.GetLecturersAsync(filter, cancellationToken));
+        return Ok(await lecturerServices.Get(filter, cancellationToken));
     }
 
-    [HttpPost("Lecturers", Name = "CreateLecturer")]
+    [HttpPost("Lecturers")]
     public async Task<ActionResult<LecturerGetDto>> CreateLecturerAsync(LecturerPostDto input, CancellationToken cancellationToken)
     {
-        return Ok(await lecturerServices.CreateLecturerAsync(input, cancellationToken));
+        return Ok(await lecturerServices.Create(input, cancellationToken));
     }
 
-    [HttpPut("Lecturers", Name = "PutLecturer")]
+    [HttpPut("Lecturers")]
     public async Task<ActionResult<bool>> PutLecturerAsync(LecturerPutDto input, CancellationToken cancellationToken)
     {
-        return Ok(await lecturerServices.UpdateLecturerAsync(input, cancellationToken));
+        return Ok(await lecturerServices.Update(input, cancellationToken));
     }
 
-    [HttpDelete("Lecturers/{lecturerId}", Name = "DeleteLecturer")]
+    [HttpDelete("Lecturers")]
     public async Task<ActionResult<bool>> DeleteLecturerAsync(int lecturerId, CancellationToken cancellationToken)
     {
-        return Ok(await lecturerServices.DeleteLecturerAsync(lecturerId, cancellationToken));
+        return Ok(await lecturerServices.Delete(lecturerId, cancellationToken));
     }
 
     #endregion
