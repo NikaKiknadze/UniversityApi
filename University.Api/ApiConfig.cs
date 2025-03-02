@@ -63,15 +63,13 @@ public static class ApiConfig
             });
         }
 
-        app.UseSwaggerUI(c =>
+        app.UseSwaggerUI(options =>
         {
-            c.SwaggerEndpoint("/swagger/v1/swagger.json", "UniversityApi");
-            c.RoutePrefix = "swagger";
-            c.DefaultModelsExpandDepth(-1);
-            c.DefaultModelExpandDepth(2);
-            c.DocExpansion(DocExpansion.None);
-            c.DefaultModelRendering(ModelRendering.Model);
-            c.DisplayRequestDuration();
+            options.SwaggerEndpoint("/swagger/v1/swagger.json", "UniversityApi");
+            options.RoutePrefix = "swagger";
+            options.DisplayRequestDuration();
+            options.DocExpansion(DocExpansion.None);
+            options.DefaultModelsExpandDepth(-1);
         });
 
         app.UseHttpsRedirection();
