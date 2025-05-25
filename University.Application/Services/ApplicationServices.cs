@@ -1,5 +1,6 @@
 ﻿using University.Application.Services.Auth;
 using University.Application.Services.Courses;
+using University.Application.Services.Excel;
 using University.Application.Services.Faculties;
 using University.Application.Services.Identity;
 using University.Application.Services.Lecturers;
@@ -20,5 +21,6 @@ public static class DependencyConfiguration
         services.AddScoped<IUniversityContext, UniversityContext>();
         services.AddScoped<IAuthServices, AuthServices>();
         services.AddScoped<IUserIdentity, UserIdentity>();
+        services.AddScoped<IExcelServices, ExcelServices>();
     }
 }

@@ -6,7 +6,7 @@ namespace University.Api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class AuthController(IAuthServices authServices) : Controller
+public class AuthController(IAuthServices authServices) : ControllerBase
 {
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] AuthModel request, CancellationToken cancellationToken)
