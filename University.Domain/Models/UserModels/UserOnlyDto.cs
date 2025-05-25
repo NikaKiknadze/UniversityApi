@@ -1,13 +1,12 @@
-﻿namespace University.Domain.Models.UserModels
+﻿namespace University.Domain.Models.UserModels;
+
+public class UserOnlyDto
 {
-    public class UserOnlyDto
-    {
-        public int Id { get; set; }
+    public int Id { get; set; }
 
-        public string? FirstName { get; set; }
+    public string? FirstName { get; set; }
 
-        public string? LastName { get; set; }
+    public string? LastName { get; set; }
 
-        public int? Age { get; set; }
-    }
+    public int? Age { get; set; }
 }

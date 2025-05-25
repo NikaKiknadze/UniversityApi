@@ -1,54 +1,70 @@
-﻿using Newtonsoft.Json;
-using System.Net;
+﻿using System.Net;
+using Newtonsoft.Json;
 using University.Domain.CustomExceptions;
-using University.Domain.CustomResponses;
 
-namespace University.Api.Middlewares
+namespace University.Api.Middlewares;
+
+public class GlobalExceptionHandlingMiddleware
 {
-    public class GlobalExceptionHandlingMiddleware(ILogger<GlobalExceptionHandlingMiddleware> logger) : IMiddleware
+    private readonly RequestDelegate _next;
+
+    public GlobalExceptionHandlingMiddleware(RequestDelegate next)
     {
-        public async Task InvokeAsync(HttpContext context, RequestDelegate next)
-        {
-            try
-            {
-                await next(context);
-            }
-            catch (NotFoundException ex)
-            {
-                await HandleException(context, ex, (int)HttpStatusCode.NotFound);
-            }
-            catch (BadRequestException ex)
-            {
-                await HandleException(context, ex, (int)HttpStatusCode.BadRequest);
-            }
-            catch (ConflictException ex)
-            {
-                await HandleException(context, ex, (int)HttpStatusCode.Conflict);
-            }
-            catch (NoContentException ex)
-            {
-                await HandleException(context, ex, (int)HttpStatusCode.NoContent);
-            }
-            catch(Exception ex)
-            {
-                await HandleException(context, ex, (int)HttpStatusCode.InternalServerError);
-            }
+        _next = next;
+    }
 
+    public async Task InvokeAsync(HttpContext context)
+    {
+        try
+        {
+            await _next(context);
+        }
+        catch (NotFoundException ex)
+        {
+            await HandleException(context, ex, (int)HttpStatusCode.NotFound);
+        }
+        catch (BadRequestException ex)
+        {
+            await HandleException(context, ex, (int)HttpStatusCode.BadRequest);
+        }
+        catch (ConflictException ex)
+        {
+            await HandleException(context, ex, (int)HttpStatusCode.Conflict);
+        }
+        catch (NoContentException ex)
+        {
+            await HandleException(context, ex, (int)HttpStatusCode.NoContent);
+        }
+        catch (AuthorizationDeniedException ex)
+        {
+            await HandleException(context, ex, (int)HttpStatusCode.Unauthorized);
+        }
+        catch(Exception ex)
+        {
+            await HandleException(context, ex, (int)HttpStatusCode.InternalServerError);
+        }
+    }
+
+    private async Task HandleException(HttpContext context, Exception ex, int statusCode)
+    {
+        if (context.Response.HasStarted)
+        {
+            return;
         }
 
-        private async Task HandleException(HttpContext context, Exception ex, int statusCode)
+        context.Response.Clear();
+
+        context.Response.StatusCode = statusCode;
+        context.Response.ContentType = "application/json";
+
+        var response = new
         {
-            logger.LogError(ex, ex.Message);
+            message = ex.Message,
+            innerException = ex.InnerException?.Message,
+            status = statusCode
+        };
 
-            context.Response.StatusCode = statusCode;
-
-            context.Response.ContentType = "application/json";
-
-            var errorResponse = ApiResponse<object>.ExceptionResult(new {ex.Message, ex.InnerException});
-
-            var jsonErrorResponse = JsonConvert.SerializeObject(errorResponse);
-
-            await context.Response.WriteAsync(jsonErrorResponse);
-        }
+        var json = JsonConvert.SerializeObject(response);
+        await context.Response.WriteAsync(json);
     }
 }

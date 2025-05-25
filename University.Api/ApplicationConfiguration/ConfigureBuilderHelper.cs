@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using University.Api.Middlewares;
-using University.Application;
 using University.Application.Services;
 using University.Data;
 
@@ -57,8 +56,6 @@ public static class ConfigureBuilderHelper
             options.Cookie.IsEssential = true;
         });
 
-        builder.Services.AddTransient<GlobalExceptionHandlingMiddleware>();
-
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen(c =>
@@ -92,5 +89,7 @@ public static class ConfigureBuilderHelper
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
             .AddJsonFile($"appsecrets.json", optional: true, reloadOnChange: true)
             .AddEnvironmentVariables();
+
+        builder.Services.AddHttpContextAccessor();
     }
 }

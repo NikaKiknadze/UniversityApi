@@ -36,7 +36,7 @@ public static class FillCourseHelper
         
         if (input.UserIds is {Count: > 0 })
             foreach (var userId in input.UserIds)
-                course.UsersCourses.Add(new UsersCourses()
+                course.UsersCourses.Add(new UsersCourses
                 {
                     UserId = userId,
                     CourseId = course.Id
@@ -47,7 +47,7 @@ public static class FillCourseHelper
         if (input.LecturerIds is not { Count: > 0 }) return course;
         
         foreach (var lecturerId in input.LecturerIds)
-            course.CoursesLecturers.Add(new CoursesLecturersJoin()
+            course.CoursesLecturers.Add(new CoursesLecturersJoin
             {
                 LectureId = lecturerId,
                 CourseId = course.Id

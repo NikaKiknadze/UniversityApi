@@ -11,4 +11,6 @@ public interface IUniversityContext : IContextMethods
     IEntityGenericMethods<Faculty> Faculties { get; }
     IEntityGenericMethods<Lecturer> Lecturers { get; }
     IEntityGenericMethods<User> Users { get; }
+    IEntityGenericMethods<AuditLog> AuditLogs { get; }
+    IEntityGenericMethods<AuditEntry> AuditEntries { get; }
 }

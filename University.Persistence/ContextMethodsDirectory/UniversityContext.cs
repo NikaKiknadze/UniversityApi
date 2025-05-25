@@ -16,16 +16,34 @@ public class UniversityContext : IUniversityContext
         Faculties = new ContextEntityGenericMethodsSetter<Faculty>(_context);
         Lecturers = new ContextEntityGenericMethodsSetter<Lecturer>(_context);
         Users = new ContextEntityGenericMethodsSetter<User>(_context);
+        AuditLogs = new ContextEntityGenericMethodsSetter<AuditLog>(_context);
+        AuditEntries = new ContextEntityGenericMethodsSetter<AuditEntry>(_context);
     }
-    
-    public int Complete() => _context.SaveChanges();
-    public async Task<int> CompleteAsync(CancellationToken cancellationToken) => await _context.SaveChangesAsync(cancellationToken);
+    public DatabaseFacade Database { get; }
+
+    #region MainMerhods
+
+    public int Complete()
+    {
+        _context.TrackUntrackedEntities(_context);
+        _context.ExecuteLogging();
+        return _context.SaveChanges();
+    }
+    public async Task<int> CompleteAsync(CancellationToken cancellationToken)
+    {
+        _context.TrackUntrackedEntities(_context);
+        _context.ExecuteLogging();
+        return await _context.SaveChangesAsync(cancellationToken);
+    }
 
     public async Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default) => await _context.Database.BeginTransactionAsync(cancellationToken);
 
-    public DatabaseFacade Database { get; }
+    #endregion
+
     public IEntityGenericMethods<Course> Courses { get; }
     public IEntityGenericMethods<Faculty> Faculties { get; }
     public IEntityGenericMethods<Lecturer> Lecturers { get; }
     public IEntityGenericMethods<User> Users { get; }
+    public IEntityGenericMethods<AuditLog> AuditLogs { get; }
+    public IEntityGenericMethods<AuditEntry> AuditEntries { get; }
 }

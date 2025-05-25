@@ -11,23 +11,6 @@ public static class FillDataHelper
         FacultyPostDto input, IUniversityContext universityContext,
         CancellationToken cancellationToken)
     {
-        if (input.UserIds is { Count: > 0 })
-        {
-            var users = await universityContext.Users.All
-                .Where(user => input.UserIds.Contains(user.Id) && 
-                               user.IsActive && 
-                               user.UserProfile != null)
-                .ToListAsync(cancellationToken);
-
-            if (users.Count != 0)
-                foreach (var user in users)
-                {
-                    user.UserProfile!.FacultyId = faculty.Id;
-                    user.UserProfile.FacultyId = faculty.Id;
-                    faculty.Users.Add(user);
-                }
-        }
-
         if (input.CourseIds is not { Count: > 0 }) return faculty;
         var courses = await universityContext.Courses.All.Where(course => input.CourseIds.Contains(course.Id))
             .ToListAsync(cancellationToken);
@@ -49,24 +32,6 @@ public static class FillDataHelper
         CancellationToken cancellationToken)
     {
         faculty.FacultyName = input.FacultyName;
-
-        faculty.Users.Clear();
-        if (input.UserIds is {Count: > 0})
-        {
-            var users = await universityContext.Users.All
-                .Where(user => input.UserIds.Contains(user.Id) &&
-                               user.IsActive &&
-                               user.UserProfile != null)
-                .ToListAsync(cancellationToken);
-
-            if (users.Count != 0)
-                foreach (var user in users)
-                {
-                    user.UserProfile!.FacultyId = faculty.Id;
-                    user.UserProfile.FacultyId = faculty.Id;
-                    faculty.Users.Add(user);
-                }
-        }
 
         faculty.Courses.Clear();
         

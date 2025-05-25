@@ -11,13 +11,9 @@ public class EntityGenericMethods<TEntity>(DbContext context) : IEntityGenericMe
     public IQueryable<TEntity> All => _context.Set<TEntity>();
     public IQueryable<TEntity> AllAsNoTracking => _context.Set<TEntity>().AsNoTracking();
 
-    public virtual void Add(TEntity entity) => _context.Set<TEntity>().Add(entity);
-
-    public virtual async Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken)
+    public virtual void Add(TEntity entity)
     {
         _context.Set<TEntity>().Add(entity);
-        await _context.SaveChangesAsync(cancellationToken);
-        return entity;
     }
 
     public virtual void AddRange(IEnumerable<TEntity> entities) => _context.Set<TEntity>().AddRange(entities);
@@ -25,29 +21,13 @@ public class EntityGenericMethods<TEntity>(DbContext context) : IEntityGenericMe
     public virtual void Remove(TEntity entity) => _context.Set<TEntity>().Remove(entity);
 
     public virtual void RemoveRange(IEnumerable<TEntity> entities) => _context.Set<TEntity>().RemoveRange(entities);
-
-    public virtual async Task RemoveRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken)
+    public virtual void RemoveAll(Expression<Func<TEntity, bool>> predicate)
     {
-        _context.Set<TEntity>().RemoveRange(entities);
-        await _context.SaveChangesAsync(cancellationToken);
-    }
-
-    public virtual async Task RemoveAllAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken)
-    {
-        var entities = await _context.Set<TEntity>().AsNoTracking().Where(predicate).ToListAsync(cancellationToken);
+        var entities =  _context.Set<TEntity>().AsNoTracking().Where(predicate).ToList();
 
         if (entities is { Count: > 0 })
-        {
             _context.Set<TEntity>().RemoveRange(entities);
-            await _context.SaveChangesAsync(cancellationToken);
-        }
     }
 
     public async Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate) => await _context.Set<TEntity>().AsNoTracking().AnyAsync(predicate);
-
-    public async Task AddRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken)
-    {
-        _context.Set<TEntity>().AddRange(entities);
-        await _context.SaveChangesAsync(cancellationToken);
-    }
 }

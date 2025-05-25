@@ -29,12 +29,21 @@ public static class FillDataHelper
     
     public static User FillData(this User user, UserPutDto input)
     {
+        user.UserProfile ??= new UserProfile
+        {
+            FirstName = input.FirstName,
+            LastName = input.LastName,
+            Age = input.Age,
+            FacultyId = input.FacultyId
+        };
+        
         user.UserProfile.FirstName = input.FirstName;
         user.UserProfile.LastName = input.LastName;
         user.UserProfile.Age = input.Age;
         user.UserProfile.FacultyId = input.FacultyId;
 
         user.UsersCourses.Clear();
+        
         if (input.CourseIds is {Count: > 0})
             foreach (var courseId in input.CourseIds)
                 user.UsersCourses.Add(new UsersCourses
@@ -44,6 +53,7 @@ public static class FillDataHelper
                 });
 
         user.UsersLecturers.Clear();
+        
         if (input.LecturerIds is not { Count: > 0 }) return user;
         
         foreach (var lecturerId in input.LecturerIds)

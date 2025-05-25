@@ -2,7 +2,6 @@
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
-using University.Application.Services.Auth;
 using University.Application.Services.Auth.Helpers;
 using University.Data.ContextMethodsDirectory;
 using University.Domain.Models.AuthModels;
