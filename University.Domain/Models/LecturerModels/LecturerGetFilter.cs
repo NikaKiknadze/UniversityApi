@@ -7,6 +7,6 @@ public class LecturerGetFilter : Paging
     public string? SurName { get; set; }
     public int? Age { get; set; }
     public bool IsActive { get; set; } = true;
-    public List<int>? UserIds { get; set; }
-    public List<int>? CourseIds { get; set; }
+    public ICollection<int>? UserIds { get; set; }
+    public ICollection<int>? CourseIds { get; set; }
 }

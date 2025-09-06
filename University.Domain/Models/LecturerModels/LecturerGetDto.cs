@@ -5,10 +5,10 @@ namespace University.Domain.Models.LecturerModels;
 
 public class LecturerGetDto
 {
-    public int Id { get; init; }
+    public int Id { get; set; }
     public required string Name { get; set; }
     public required string SurName { get; set; }
     public required int Age { get; set; }
-    public List<UserOnlyDto>? Users { get; set; }
-    public List<CourseOnlyDto>? Courses { get; set; }
+    public ICollection<UserOnlyDto> Users { get; set; } = new List<UserOnlyDto>();
+    public ICollection<CourseOnlyDto> Courses { get; set; } = new List<CourseOnlyDto>();
 }

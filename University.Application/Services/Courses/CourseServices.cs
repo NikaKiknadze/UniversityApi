@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using University.Application.Services.Courses.Helpers;
-using University.Data.ContextMethodsDirectory;
 using University.Data.Data.Entities;
+using University.Data.Repositories.Interfaces;
 using University.Domain.CustomExceptions;
 using University.Domain.CustomResponses;
 using University.Domain.Models;
@@ -9,12 +9,12 @@ using University.Domain.Models.CourseModels;
 
 namespace University.Application.Services.Courses;
 
-public class CourseServices(IUniversityContext universityContext) : ICourseServices
+public class CourseServices(ICourseRepository courseRepository) : ICourseServices
 {
     public async Task<ApiResponse<GetDtoWithCount<ICollection<CourseGetDto>>>> Get(CourseGetFilter filter,
         CancellationToken cancellationToken)
     {
-        var courses = universityContext.Courses.AllAsNoTracking.FilterData(filter);
+        var courses = courseRepository.AllAsNoTracking.FilterData(filter);
 
         var result = await courses
             .MapToCourseGetDto()
@@ -35,8 +35,7 @@ public class CourseServices(IUniversityContext universityContext) : ICourseServi
     {
         var course = new Course
         {
-            CourseName = input.CourseName,
-            FacultyId = input.FacultyId
+            CourseName = input.CourseName
         };
 
         if (string.IsNullOrEmpty(input.CourseName))
@@ -44,20 +43,17 @@ public class CourseServices(IUniversityContext universityContext) : ICourseServi
 
         course = course.FillCourse(input);
 
-        universityContext.Courses.Add(course);
-        
-        await universityContext.CompleteAsync(cancellationToken);
+        await courseRepository.AddAsync(course, cancellationToken);
             
         return course.Id;
     }
 
     public async Task<int> Update(CoursePutDto input, CancellationToken cancellationToken)
     {
-        var course = await universityContext.Courses.All
+        var course = await courseRepository.All
             .Include(c => c.UsersCourses)
-            .ThenInclude(uc => uc.User)
             .Include(c => c.CoursesLecturers)
-            .ThenInclude(cl => cl.Lecturer)
+            .Include(x => x.FacultyCourses)
             .FirstOrDefaultAsync(c => c.Id == input.Id, cancellationToken);
 
         if (course is null)
@@ -65,18 +61,17 @@ public class CourseServices(IUniversityContext universityContext) : ICourseServi
 
         course = course.FillCourse(input);
 
-        await universityContext.CompleteAsync(cancellationToken);
+        await courseRepository.UpdateAsync(course ,cancellationToken);
             
         return course.Id;
     }
         
     public async Task<int> Delete(int courseId, CancellationToken cancellationToken)
     {
-        var course = await universityContext.Courses.All
+        var course = await courseRepository.All
             .Include(uc => uc.UsersCourses)
-            .ThenInclude(u => u.User)
             .Include(cl => cl.CoursesLecturers)
-            .ThenInclude(l => l.Lecturer)
+            .Include(x => x.FacultyCourses)
             .FirstOrDefaultAsync(c => c.Id == courseId, cancellationToken);
             
         if (course == null)
@@ -84,8 +79,10 @@ public class CourseServices(IUniversityContext universityContext) : ICourseServi
 
         course.UsersCourses.Clear();
         course.CoursesLecturers.Clear();
+        course.FacultyCourses.Clear();
         course.IsActive = false;
-        await universityContext.CompleteAsync(cancellationToken);
+        
+        await courseRepository.UpdateAsync(course ,cancellationToken);
             
         return courseId;
     }

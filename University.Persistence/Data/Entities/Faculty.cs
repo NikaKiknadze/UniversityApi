@@ -4,14 +4,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace University.Data.Data.Entities;
 
 [Table("Faculties", Schema = "university")]
-public class  Faculty
+public sealed class  Faculty
 {
     [Key]
-    public int Id { get; init; }
+    public int Id { get; set; }
     [MaxLength(50)]
     public required string FacultyName { get; set; }
 
     public bool IsActive { get; set; } = true;
-    public virtual ICollection<User> Users { get; set; } = new HashSet<User>();
-    public virtual ICollection<Course> Courses { get; set; } = new HashSet<Course>();
+    public ICollection<UserProfile> Users { get; set; } = new HashSet<UserProfile>();
+    public ICollection<FacultyCourse> FacultyCourses { get; set; } = new HashSet<FacultyCourse>();
 }

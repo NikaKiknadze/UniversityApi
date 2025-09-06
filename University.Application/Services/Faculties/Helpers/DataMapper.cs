@@ -13,18 +13,21 @@ public static class DataMapper
         {
             Id = f.Id,
             FacultyName = f.FacultyName,
-            Users = f.Users.Where(user => user.UserProfile != null)
+            Users = f.Users
+                .Where(x => x.User.IsActive)
                 .Select(u => new UserOnlyDto
             {
-                Id = u.Id,
-                FirstName = u.UserProfile!.FirstName,
-                LastName = u.UserProfile.LastName,
-                Age = u.UserProfile.Age
+                Id = u.UserId,
+                FirstName = u.User.UserProfile.FirstName,
+                LastName = u.User.UserProfile.LastName,
+                Age = u.User.UserProfile.Age
             }).ToList(),
-            Courses = f.Courses.Select(uc => new CourseOnlyDto
+            Courses = f.FacultyCourses
+                .Where(x => x.Course.IsActive)
+                .Select(uc => new CourseOnlyDto
             {
-                Id = uc.Id,
-                CourseName = uc.CourseName
+                Id = uc.CourseId,
+                CourseName = uc.Course.CourseName
             }).ToList()
         });
     }

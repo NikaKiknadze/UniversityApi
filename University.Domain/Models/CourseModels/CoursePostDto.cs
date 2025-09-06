@@ -3,7 +3,7 @@
 public class CoursePostDto
 {
     public string CourseName { get; set; } = string.Empty;
-    public int? FacultyId { get; set; }
-    public List<int>? LecturerIds { get; set; }
-    public List<int>? UserIds { get; set; }
+    public ICollection<int>? FacultyIds { get; set; }
+    public ICollection<int>? LecturerIds { get; set; }
+    public ICollection<int>? UserIds { get; set; }
 }

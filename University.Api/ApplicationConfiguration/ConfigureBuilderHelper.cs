@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using University.Application;
 using University.Application.Services;
 using University.Data;
+using University.Data.Data;
 
 namespace University.Api.ApplicationConfiguration;
 
@@ -21,7 +23,7 @@ public static class ConfigureBuilderHelper
             options.Limits.MaxRequestBodySize = null;
         });
 
-        builder.Services.AddDbContext<UniversityDbContext>(options => 
+        builder.Services.AddDbContext<AppDbContext>(options => 
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
         );
 
@@ -45,7 +47,10 @@ public static class ConfigureBuilderHelper
 
         builder.Services.AddAuthorization();
         
-        builder.Services.RegisterDependencyConfiguration();
+        //Services
+        builder.Services.RegisterServicesDependencyConfiguration();
+        //Repositories
+        builder.Services.RegisterRepositoriesDependencyConfiguration();
 
         builder.Services.AddDistributedMemoryCache();
 

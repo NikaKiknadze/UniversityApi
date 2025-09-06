@@ -1,12 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using University.Application.PublicHelpers;
-using University.Data.ContextMethodsDirectory;
+using University.Data.Repositories.Interfaces;
 using University.Domain.CustomExceptions;
 using University.Domain.Models.AuthModels;
 
 namespace University.Application.Services.Auth;
 
-public class AuthServices(IHttpContextAccessor httpContextAccessor, IUniversityContext universityContext, IConfiguration configuration) : IAuthServices
+public class AuthServices(IHttpContextAccessor httpContextAccessor, IUserRepository userRepository, IConfiguration configuration) : IAuthServices
 {
     public async Task<AuthTokenResponse> Login(AuthModel request, CancellationToken cancellationToken)
     {
@@ -16,14 +16,14 @@ public class AuthServices(IHttpContextAccessor httpContextAccessor, IUniversityC
         if (string.IsNullOrEmpty(request.Password))
             throw new BadRequestException("Password is required.");
         
-        var user = await universityContext.Users.AllAsNoTracking.SingleOrDefaultAsync(u => u.Username == request.Username, cancellationToken);
+        var user = await userRepository.AllAsNoTracking.SingleOrDefaultAsync(u => u.Username == request.Username, cancellationToken);
         
         if (user == null || !VerifyPassword(request.Password, user.PasswordHash))
             throw new AuthorizationDeniedException("Invalid credentials.");
 
         httpContextAccessor.HttpContext?.Session.SetInt32("UserId", user.Id);
         
-        var generateToken = await GenerateJwtToken.Execute(request, configuration, universityContext, cancellationToken);
+        var generateToken = await GenerateJwtToken.Execute(request, configuration, userRepository, cancellationToken);
         
         return generateToken;
     }

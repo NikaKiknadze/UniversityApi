@@ -18,11 +18,12 @@ public static class FilterDataHelper
         {
             query = query.Where(c => c.CourseName.Contains(filter.CourseName));
         }
-        if(filter.FacultyId != null)
+        if(filter.FacultyIds is {Count: > 0})
         {
-            query = query.Where(c => c.FacultyId == filter.FacultyId);
+            query.Include(c => c.FacultyCourses);
+            query = query.Where(c => c.FacultyCourses.Any(cl => filter.FacultyIds.Contains(cl.FacultyId)));
         }
-        if(filter.LecturerIds != null && filter.LecturerIds.Any())
+        if(filter.LecturerIds is {Count: > 0})
         {
             query.Include(c => c.CoursesLecturers);
             query = query.Where(c => c.CoursesLecturers.Any(cl => filter.LecturerIds.Contains(cl.LectureId)));

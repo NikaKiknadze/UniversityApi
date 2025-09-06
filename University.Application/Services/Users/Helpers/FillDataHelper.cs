@@ -9,7 +9,7 @@ public static class FillDataHelper
     {
         if (input.CourseIds is {Count: > 0})
             foreach (var courseId in input.CourseIds)
-                user.UsersCourses.Add(new UsersCourses
+                user.UsersCourses.Add(new UserCourse
                 {
                     CourseId = courseId,
                     UserId = user.Id
@@ -18,7 +18,7 @@ public static class FillDataHelper
         if (input.LecturerIds is not { Count: > 0 }) return user;
         
         foreach (var lecturerId in input.LecturerIds)
-            user.UsersLecturers.Add(new UsersLecturers
+            user.UsersLecturers.Add(new UserLecturer
             {
                 LecturerId = lecturerId,
                 UserId = user.Id
@@ -29,14 +29,6 @@ public static class FillDataHelper
     
     public static User FillData(this User user, UserPutDto input)
     {
-        user.UserProfile ??= new UserProfile
-        {
-            FirstName = input.FirstName,
-            LastName = input.LastName,
-            Age = input.Age,
-            FacultyId = input.FacultyId
-        };
-        
         user.UserProfile.FirstName = input.FirstName;
         user.UserProfile.LastName = input.LastName;
         user.UserProfile.Age = input.Age;
@@ -46,7 +38,7 @@ public static class FillDataHelper
         
         if (input.CourseIds is {Count: > 0})
             foreach (var courseId in input.CourseIds)
-                user.UsersCourses.Add(new UsersCourses
+                user.UsersCourses.Add(new UserCourse
                 {
                     CourseId = courseId,
                     UserId = user.Id
@@ -57,7 +49,7 @@ public static class FillDataHelper
         if (input.LecturerIds is not { Count: > 0 }) return user;
         
         foreach (var lecturerId in input.LecturerIds)
-            user.UsersLecturers.Add(new UsersLecturers
+            user.UsersLecturers.Add(new UserLecturer
             {
                 LecturerId = lecturerId,
                 UserId = user.Id

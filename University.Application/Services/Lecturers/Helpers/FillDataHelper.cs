@@ -9,7 +9,7 @@ public static class FillDataHelper
     {
         if (input.CourseIds is {Count: > 0})
             foreach (var courseId in input.CourseIds)
-                lecturer.CoursesLecturers.Add(new CoursesLecturersJoin
+                lecturer.CoursesLecturers.Add(new CourseLecturer
                 {
                     CourseId = courseId,
                     LectureId = lecturer.Id
@@ -18,7 +18,7 @@ public static class FillDataHelper
         if (input.UserIds is not { Count: > 0 }) return lecturer;
         
         foreach (var userId in input.UserIds)
-            lecturer.UsersLecturers.Add(new UsersLecturers
+            lecturer.UsersLecturers.Add(new UserLecturer
             {
                 UserId = userId,
                 LecturerId = lecturer.Id
@@ -37,7 +37,7 @@ public static class FillDataHelper
         
         if (input.CourseIds is {Count: > 0})
             foreach (var courseId in input.CourseIds)
-                lecturer.CoursesLecturers.Add(new CoursesLecturersJoin
+                lecturer.CoursesLecturers.Add(new CourseLecturer
                 {
                     CourseId = courseId,
                     LectureId = lecturer.Id
@@ -48,7 +48,7 @@ public static class FillDataHelper
         if (input.UserIds is not { Count: > 0 }) return lecturer;
         
         foreach (var userId in input.UserIds)
-            lecturer.UsersLecturers.Add(new UsersLecturers
+            lecturer.UsersLecturers.Add(new UserLecturer
             {
                 UserId = userId,
                 LecturerId = lecturer.Id

@@ -5,20 +5,17 @@ using University.Application.Services.Faculties;
 using University.Application.Services.Identity;
 using University.Application.Services.Lecturers;
 using University.Application.Services.Users;
-using University.Data.ContextMethodsDirectory;
 
-namespace University.Application.Services;
+namespace University.Application;
 
-public static class DependencyConfiguration
+public static class ApplicationServices
 {
-    public static void RegisterDependencyConfiguration(this IServiceCollection services)
+    public static void RegisterServicesDependencyConfiguration(this IServiceCollection services)
     {
         services.AddScoped<ICourseServices, CourseServices>();
         services.AddScoped<IFacultyServices, FacultyServices>();
         services.AddScoped<ILecturerServices,  LecturerServices>();
         services.AddScoped<IUserServices, UserServices>();
-        services.AddScoped<IUniversityContext, UniversityContext>();
-        services.AddScoped<IUniversityContext, UniversityContext>();
         services.AddScoped<IAuthServices, AuthServices>();
         services.AddScoped<IUserIdentity, UserIdentity>();
         services.AddScoped<IExcelServices, ExcelServices>();

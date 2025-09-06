@@ -3,5 +3,5 @@
 public class FacultyPostDto
 {
     public string FacultyName { get; set; } = null!;
-    public List<int>? CourseIds { get; set; }
+    public ICollection<int>? CourseIds { get; set; }
 }

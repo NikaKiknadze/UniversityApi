@@ -19,11 +19,11 @@ public static class FilterDataHelper
         }
         if (filter.UserIds is {Count: > 0})
         {
-            query = query.Where(f => f.Users.Any(u => filter.UserIds.Contains(u.Id)));
+            query = query.Where(f => f.Users.Any(u => filter.UserIds.Contains(u.UserId)));
         }
         if (filter.CourseIds is {Count: > 0})
         {
-            query = query.Where(f => f.Courses.Any(course => filter.CourseIds.Contains(course.Id)));
+            query = query.Where(f => f.FacultyCourses.Any(course => filter.CourseIds.Contains(course.CourseId)));
         }
         
         return query;

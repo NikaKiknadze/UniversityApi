@@ -4,5 +4,5 @@ public class FacultyPutDto
 {
     public int Id { get; set; }
     public string FacultyName { get; set; } = null!;
-    public List<int>? CourseIds { get; set; }
+    public ICollection<int>? CourseIds { get; set; }
 }

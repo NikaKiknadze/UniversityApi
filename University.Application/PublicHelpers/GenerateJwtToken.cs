@@ -3,7 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using University.Application.Services.Auth.Helpers;
-using University.Data.ContextMethodsDirectory;
+using University.Data.Repositories.Interfaces;
 using University.Domain.Models.AuthModels;
 
 namespace University.Application.PublicHelpers;
@@ -11,10 +11,10 @@ namespace University.Application.PublicHelpers;
 public static class GenerateJwtToken
 {
     public static async Task<AuthTokenResponse> Execute(AuthModel request, 
-        IConfiguration configuration, IUniversityContext universityContext,
+        IConfiguration configuration, IUserRepository userRepository,
         CancellationToken cancellationToken)
     {
-        var user = await universityContext.GetAuthUserModel(request, cancellationToken);
+        var user = await userRepository.GetAuthUserModel(request, cancellationToken);
 
         Claim[]? claims = null;
         

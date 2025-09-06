@@ -16,20 +16,19 @@ public static class DataMapper
             SurName = lecturer.SurName,
             Age = lecturer.Age,
             Users = lecturer.UsersLecturers
-                .Where(ul => ul.User != null && 
-                             ul.User.UserProfile != null)
+                .Where(ul => ul.User.IsActive)
                 .Select(l => new UserOnlyDto
                 {
-                    Id = l.User!.Id,
-                    FirstName = l.User.UserProfile!.FirstName,
+                    Id = l.User.Id,
+                    FirstName = l.User.UserProfile.FirstName,
                     LastName = l.User.UserProfile.LastName,
                     Age = l.User.UserProfile.Age
                 }).ToList(),
             Courses = lecturer.CoursesLecturers
-                .Where(cl => cl.Course != null)
+                .Where(cl => cl.Course.IsActive)
                 .Select(l => new CourseOnlyDto
                 {
-                    Id = l.Course!.Id,
+                    Id = l.Course.Id,
                     CourseName = l.Course.CourseName
                 }).ToList()
         });

@@ -7,6 +7,6 @@ public class FacultyGetDto
 {
     public int? Id { get; set; }
     public string? FacultyName { get; set; }
-    public List<UserOnlyDto>? Users { get; set; }
-    public List<CourseOnlyDto>? Courses { get; set; }
+    public ICollection<UserOnlyDto> Users { get; set; } = new List<UserOnlyDto>();
+    public ICollection<CourseOnlyDto> Courses { get; set; } = new List<CourseOnlyDto>();
 }

@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using University.Application.Services.Faculties.Helpers;
-using University.Data.ContextMethodsDirectory;
 using University.Data.Data.Entities;
+using University.Data.Repositories.Interfaces;
 using University.Domain.CustomExceptions;
 using University.Domain.CustomResponses;
 using University.Domain.Models;
@@ -9,12 +9,12 @@ using University.Domain.Models.FacultyModels;
 
 namespace University.Application.Services.Faculties;
 
-public class FacultyServices(IUniversityContext universityContext) : IFacultyServices
+public class FacultyServices(IFacultyRepository facultyRepository) : IFacultyServices
 {
     public async Task<ApiResponse<GetDtoWithCount<ICollection<FacultyGetDto>>>> Get(FacultyGetFilter filter,
         CancellationToken cancellationToken)
     {
-        var faculties = universityContext.Faculties.AllAsNoTracking.FilterData(filter);
+        var faculties = facultyRepository.AllAsNoTracking.FilterData(filter);
 
         var result = await faculties
             .MapToFacultyGetDto()
@@ -39,47 +39,43 @@ public class FacultyServices(IUniversityContext universityContext) : IFacultySer
             FacultyName = input.FacultyName
         };
 
-        faculty = await faculty.FillData(input, universityContext, cancellationToken);
+        faculty = faculty.FillData(input);
 
-        universityContext.Faculties.Add(faculty);
-        
-        await universityContext.CompleteAsync(cancellationToken);
+        await facultyRepository.AddAsync(faculty, cancellationToken);
 
         return faculty.Id;
     }
 
     public async Task<int> Update(FacultyPutDto input, CancellationToken cancellationToken)
     {
-        var faculty = await universityContext.Faculties.All
-            .Include(f => f.Users)
-            .Include(f => f.Courses)
+        var faculty = await facultyRepository.All
+            .Include(f => f.FacultyCourses)
             .FirstOrDefaultAsync(faculty => faculty.Id == input.Id,
                 cancellationToken);
 
         if(faculty is null)
             throw new NotFoundException("Faculty not found");
             
-        faculty = await faculty.FillData(input, universityContext, cancellationToken);
+        faculty =  faculty.FillData(input);
             
-        await universityContext.CompleteAsync(cancellationToken);
+        await facultyRepository.UpdateAsync(faculty, cancellationToken);
             
         return faculty.Id;
     }
 
     public async Task<int> Delete(int facultyId, CancellationToken cancellationToken)
     {
-        var faculty = await universityContext.Faculties.All
+        var faculty = await facultyRepository.All
             .Include(f => f.Users)
-            .Include(f => f.Courses)
+            .Include(f => f.FacultyCourses)
             .FirstOrDefaultAsync(f => f.Id == facultyId, cancellationToken);
             
         if (faculty == null)
             throw new NotFoundException("Faculty not found");
 
-        faculty.Users.Clear();
-        faculty.Courses.Clear();
+        faculty.FacultyCourses.Clear();
         faculty.IsActive = false;
-        await universityContext.CompleteAsync(cancellationToken);
+        await facultyRepository.UpdateAsync(faculty, cancellationToken);
             
         return facultyId;
     }
